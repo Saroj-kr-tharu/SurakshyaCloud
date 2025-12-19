@@ -24,11 +24,13 @@ router.post( "/auth/logout",  userCtrl.logout );
 router.post( "/user/files",usermiddleware.verifyToken, usermiddleware.validateAcessToken , multerHelper.upload.any(),   fileCtrl.addFile );
 router.get( "/user/file/:fileId",usermiddleware.verifyToken, usermiddleware.validateAcessToken , fileCtrl.viewFile );
 router.delete( "/user/file",usermiddleware.verifyToken, usermiddleware.validateAcessToken , fileCtrl.deleteFile );
+router.patch( "/user/file/:fileId/rename",usermiddleware.verifyToken, usermiddleware.validateAcessToken , fileCtrl.renameFile );
 
 
 // folder
 router.post( "/user/folders",usermiddleware.verifyToken, usermiddleware.validateAcessToken,   folderCtrl.addFolder );
-
+router.get('/folders/root', usermiddleware.verifyToken, usermiddleware.validateAcessToken, folderCtrl.viewRootFolder);
+router.get('/folders/:folderId', usermiddleware.verifyToken, usermiddleware.validateAcessToken, folderCtrl.viewFolder);
 
  
 module.exports = router;

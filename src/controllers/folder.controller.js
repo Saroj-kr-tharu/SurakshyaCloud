@@ -36,60 +36,62 @@ class FolderController {
     }
     
     
-    // async viewFile(req,res ) {
-    //     try {
+    async viewRootFolder(req,res ) {
+        try {
             
            
-    //         const userId = req?.userId; 
-    //         const fileId = req?.params?.fileId;            
-    //         const  response = await fileService.viewsFiles({userId, fileId }) ;
+            const userId = req?.userId;      
+            const  response = await folderService.viewRootFolder({userId}) ;
 
-    //         return res.status(SucessCode.OK).json({
-    //             message: "Successfully  viewFile",
-    //             success: true,
-    //             data: response,
-    //             err: {},
-    //         });
+            return res.status(SucessCode.OK).json({
+                message: "Successfully  viewRootFolder",
+                success: true,
+                data: response,
+                err: {},
+            });
 
-    //     } catch (error) {
-    //         console.log("something went wrong in controller  level  (viewFile) ", error )
+        } catch (error) {
+            console.log("something went wrong in controller  level  (viewRootFolder) ", error )
 
-    //         return res.status(error.statusCode  | ServerErrosCodes.INTERNAL_SERVER_ERROR).json({
-    //             message: error.message,
-    //             sucess: false,
-    //             data: {},
-    //             err: error.explanation,
-    //         });
-    //     }
-    // }
+            return res.status(error.statusCode  | ServerErrosCodes.INTERNAL_SERVER_ERROR).json({
+                message: error.message,
+                sucess: false,
+                data: {},
+                err: error.explanation,
+            });
+        }
+    }
 
 
-    // async deleteFile(req,res ) {
-    //     try {
-             
+    async viewFolder(req,res ) {
+        try {
+            
            
-    //         const userId = req?.userId; 
-    //         const fileId = req?.query?.fileId;            
-    //         const  response = await fileService.deleteFile({userId, fileId}) ;
+            const userId = req?.userId;
+            const parentId = req?.parentId;
+            const folderId = req?.params?.folderId;   
+              
+            const  response = await folderService.viewFolder({userId,parentId: parentId || null , folderId}) ;
 
-    //         return res.status(SucessCode.OK).json({
-    //             message: "Successfully  deleteFile",
-    //             success: true,
-    //             data: response,
-    //             err: {},
-    //         });
+            return res.status(SucessCode.OK).json({
+                message: "Successfully  viewFolder",
+                success: true,
+                data: response,
+                err: {},
+            });
 
-    //     } catch (error) {
-    //         console.log("something went wrong in controller  level  (deleteFile) ", error )
+        } catch (error) {
+            console.log("something went wrong in controller  level  (viewFolder) ", error )
 
-    //         return res.status(error.statusCode  | ServerErrosCodes.INTERNAL_SERVER_ERROR).json({
-    //             message: error.message,
-    //             sucess: false,
-    //             data: {},
-    //             err: error,
-    //         });
-    //     }
-    // }
+            return res.status(error.statusCode  | ServerErrosCodes.INTERNAL_SERVER_ERROR).json({
+                message: error.message,
+                sucess: false,
+                data: {},
+                err: error.explanation,
+            });
+        }
+    }
+    
 
 
 }

@@ -19,6 +19,33 @@ class FileRepo extends CurdRepo {
     } 
 
 
+    async getFiles(data) {
+        try { 
+            const result = await fileModel
+            .find({ownerId: data.userId,  folderId: data.folderId})
+            .select('_id ownerId folderId originalName s3Key mimeType  size  status isPublic  downloadCount' );
+            return result;
+        } catch (error) {
+            console.log('Something went wrong in fileRepo (getFiles)');
+
+            throw error;
+        }
+    } 
+
+    async findOneFiles(filter) {
+        try { 
+            const result = await fileModel
+            .findOne(filter)
+            .select('_id ownerId folderId originalName s3Key mimeType  size  status isPublic  downloadCount' );
+            return result;
+        } catch (error) {
+            console.log('Something went wrong in fileRepo (findOneFiles)');
+
+            throw error;
+        }
+    } 
+
+
 }
 
 

@@ -1,5 +1,5 @@
 const curdService = require("./curdService");
-const {folderRepo} = require('../repository/index');
+const {folderRepo, fileRepo} = require('../repository/index');
 const userMiddlewares = require("../middlewares/user.middlewares");
 
 
@@ -37,6 +37,49 @@ class folderService extends curdService{
             throw error;
         }
     }
+
+
+    async viewRootFolder({ userId,parentId=null,folderId=null   }) {  
+        try {
+             // 1. get all the folder of user which parentId = null 
+               const folders = await folderRepo.getFolderBydata({userId, parentId })
+               // 2. get all the file of user which folderId = null 
+               const files = await fileRepo.getFiles({userId, folderId})
+               // 3. return folder , file (originalName)
+               const res = { 
+                folders, 
+                files
+               }
+               return res ;
+            
+        } catch (error) {
+            console.log("Something went wrong in service layer (viewRootFolder)", error );
+            throw error;
+        }
+    }
+
+
+    async viewFolder({ userId, folderId=null   }) {  
+        try {
+             // 1. get all the folder of user which parentId = null 
+               const folders = await folderRepo.getFolderBydata({userId, parentId:folderId })
+               // 2. get all the file of user which folderId = null 
+               const files = await fileRepo.getFiles({userId, folderId})
+               // 3. return folder , file (originalName)
+               const res = { 
+                folders, 
+                files
+               }
+               return res ;
+            
+        } catch (error) {
+            console.log("Something went wrong in service layer (viewRootFolder)", error );
+            throw error;
+        }
+    }
+
+
+
 
 }
 

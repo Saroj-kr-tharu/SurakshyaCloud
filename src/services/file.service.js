@@ -125,6 +125,45 @@ class userService extends curdService{
     }
 
 
+    async renameFile(data) { 
+        try {
+        //1. get fileid if exist 
+            const fileData= await fileRepo.get(data.fileId);
+          
+            if(!fileData) throw new Error(" File is not Found ")
+        // 1.2. check ownership
+            if (fileData.ownerId.toString() !== data.userId) 
+                throw new Error("Access denied")
+        //1.3 check data.name 
+         if (!data.name || !data.name.trim()) 
+            throw new Error("New file name is required");
+            
+
+        // 2. check name Confict
+          const conflict = await fileRepo.findOneFiles({
+             ownerId: data.userId,
+            folderId: fileData.folderId,
+            originalName: data.name,
+            _id: { $ne: data.fileId }
+          })
+          console.log(' cnon =>  ', conflict)
+           if (conflict) 
+                throw new Error("File with same name already exists in this folder");
+    
+
+        // 3.  rename 
+            const updatedFile = await fileRepo.update(data.fileId, {
+                originalName: data.name
+                });
+
+             return updatedFile;
+
+        } catch (error) {
+            console.log("Something went wrong in service layer (renameFile)", error );
+            throw error;
+        }
+    }
+
 }
 
 const userservice = new userService()

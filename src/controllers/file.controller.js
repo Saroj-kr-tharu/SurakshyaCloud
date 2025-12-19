@@ -103,6 +103,33 @@ class FileController {
         }
     }
 
+    async renameFile(req,res ) {
+        try {
+             
+           
+            const userId = req?.userId; 
+            const fileId = req?.params?.fileId;  
+            const name = req?.body?.name;            
+            const  response = await fileService.renameFile({userId, fileId, name}) ; 
+
+            return res.status(SucessCode.OK).json({
+                message: "Successfully  renameFile",
+                success: true,
+                data: response,
+                err: {},
+            });
+
+        } catch (error) {
+            console.log("something went wrong in controller  level  (renameFile) ", error )
+
+            return res.status(error.statusCode  | ServerErrosCodes.INTERNAL_SERVER_ERROR).json({
+                message: error.message,
+                sucess: false,
+                data: {},
+                err: error,
+            });
+        }
+    }
 
 }
 
