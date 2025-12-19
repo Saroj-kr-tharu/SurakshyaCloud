@@ -1,7 +1,9 @@
-const s3Client = require('../config/awsConfig')
-const {BUCKET_NAME} = require('../config/serverConfig')
-const { DeleteObjectCommand, PutObjectCommand, GetObjectCommand } = require("@aws-sdk/client-s3");
+const path = require('path');
 
+const {s3client} = require('../config/awsConfig')
+const {BUCKET_NAME, CLOUDFRONT_DOMAIN, CLOUDFRONT_PRIVATE_KEY, CLOUDFRONT_KEY_PAIR_ID} = require('../config/serverConfig')
+const { DeleteObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require("@aws-sdk/cloudfront-signer");
 
 
 class s3Service {
@@ -18,7 +20,7 @@ class s3Service {
                 Metadata: metadata
                 });
 
-            const response =  await s3Client.send(command);
+            const response =  await s3client.send(command);
             return response;
             
 
@@ -30,33 +32,35 @@ class s3Service {
         }
     }
 
-    async pullObject(data, expiresIn=3600){
+    async pullObject({ s3Key,  expiresIn = 300,}){
         try {
-           
-            const command = new GetObjectCommand({
-                Bucket: BUCKET_NAME,
-                Key: s3Key
-            });
 
-            const response =  await getSignedUrl(s3Client, command, { expiresIn });
-            return response ; 
+        
+            const signedUrl = getSignedUrl({
+                url: `${CLOUDFRONT_DOMAIN}${s3Key}`,
+                dateLessThan: new Date(Date.now() + expiresIn * 1000).toISOString(),
+                privateKey: CLOUDFRONT_PRIVATE_KEY,
+                keyPairId: CLOUDFRONT_KEY_PAIR_ID
+            });
+            return signedUrl;
+           
+            
 
         } catch (error) {
-            console.log("something went wrong in service s3Service level  (verifyToken) ")
+            console.log(`Failed to generate signed URL for ${s3Key}: ${error.message}`)
             throw  error;
         }
     }
 
-    async deleteObject(data){
+    async deleteObject(object_key){
         try {
-            
             const command = new DeleteObjectCommand({
                 Bucket: BUCKET_NAME,
-                Key: data.object_key,
+                Key: object_key,
             });
 
-            await s3Client.send(command);
-            
+            const res =  await s3client.send(command);
+            return res; 
 
         } catch (error) {
             console.log("something went wrong in service s3Service level  (genRefreshToken) ", error )

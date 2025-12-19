@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const {userCtrl, fileCtrl} = require('../../controllers/index')
+const {userCtrl, fileCtrl, folderCtrl} = require('../../controllers/index')
 const {usermiddleware} = require('../../middlewares/index')
 const multerHelper = require('../../utlis/multerHelper');
 
@@ -21,9 +21,13 @@ router.post( "/auth/logout",  userCtrl.logout );
 
 
 // file / user 
-router.post( "/user/files",usermiddleware.verifyToken, usermiddleware.validateAcessToken , multerHelper.uploadSingle,   fileCtrl.addFile );
+router.post( "/user/files",usermiddleware.verifyToken, usermiddleware.validateAcessToken , multerHelper.upload.any(),   fileCtrl.addFile );
 router.get( "/user/file/:fileId",usermiddleware.verifyToken, usermiddleware.validateAcessToken , fileCtrl.viewFile );
+router.delete( "/user/file",usermiddleware.verifyToken, usermiddleware.validateAcessToken , fileCtrl.deleteFile );
 
+
+// folder
+router.post( "/user/folders",usermiddleware.verifyToken, usermiddleware.validateAcessToken,   folderCtrl.addFolder );
 
 
  

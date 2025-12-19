@@ -7,7 +7,16 @@ class FolderRepo extends CurdRepo {
         super(folderModel)
     }; 
 
-   
+   async findFolder(data) {
+        try {
+            const result = await folderModel.findOne(data);
+            return result;
+        } catch (error) {
+            console.log('Something went wrong in fileRepo (bulkCreate)');
+
+            throw error;
+        }
+    } 
 
 
 }

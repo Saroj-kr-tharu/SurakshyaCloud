@@ -2,23 +2,62 @@ const curdService = require("./curdService");
 const {fileRepo, userRepo} = require('../repository/index')
 const { CLOUDFLARE_CDN_UR } = require("../config/serverConfig");
 
-const {getFileSignedUrl} = require('../utlis/multerHelper')
+
+const s3Service = require('./s3.service');
+;
 
 class userService extends curdService{
 
        constructor(){
-        super(fileRepo)
+        super(fileRepo) 
     }
 
-    async addFiles(data) {
+    async addFiles({userId, files, folderId}) { 
         try {
+            let storageUsed = 0 ; 
             
+            // 1. upload to s3 
+            const uploaded = await Promise.all(
+                files.map(async (file) => {
 
-            // 1. add  file 
-            const res = await fileRepo.create( {...data} );
+                    //1.1 generate s3key 
+                    const s3Key = s3Service.generateS3Key({
+                        userId,
+                        originalName: file.originalname
+                    });
+                    
+                    //1.2 push to s3 
+                    await s3Service.pushObject({
+                        buffer: file.buffer,
+                        mimetype: file.mimetype,
+                        s3Key,
+                        metadata: {
+                            originalName: file.originalname,
+                            uploadedBy: userId
+                        }
+                    });
 
-            // 2. update the storage in user model 
-            await userRepo.update(data.ownerId,  { $inc: { storageUsed: data.size } } )
+                    // 1.3 increase storageUsed 
+                    storageUsed += file.size; 
+
+                    return {
+                        ownerId: userId,
+                        originalName: file.originalname,
+                        s3Key,
+                        folderId: folderId, 
+                        size: file.size,
+                        mimeType: file.mimetype
+                    };
+                })
+            );
+
+            // console.log(' all upload => ', uploaded)
+
+            // 1. create bulk 
+            const res = await fileRepo.bulkCreate( uploaded );
+
+            // // 2. update the storage in user model 
+            await userRepo.update(userId,  { $inc: { storageUsed: storageUsed } } )
             return res;
         } catch (error) {
             console.log("Something went wrong in service layer (addFiles)", error );
@@ -33,15 +72,16 @@ class userService extends curdService{
             const fileData= await fileRepo.get(data.fileId);
           
             if(!fileData) throw new Error(" File is not Found ")
+
             // 2. check ownership
             if (fileData.ownerId.toString() !== data.userId) 
                     throw new Error("Access denied")
                 
             //  2.1 if mode == download then increase the downloadcount +1 ;
-                await fileRepo.update(fileData._id.toString(), { $inc: { downloadCount: 1 } } )
+            await fileRepo.update(fileData._id.toString(), { $inc: { downloadCount: 1 } } )
 
             // 3. generate signedurl 
-            const signedUrl =  await  getFileSignedUrl({s3Key : fileData.s3Key,mode: data.mode,originalName: fileData.originalName} )
+            const signedUrl =  await  s3Service.pullObject({s3Key : fileData.s3Key} )
             
             // 4.return signed url 
             const res = {
@@ -49,6 +89,33 @@ class userService extends curdService{
                 originalName: fileData.originalName, 
             }
 
+           
+            return res;
+        } catch (error) {
+            console.log("Something went wrong in service layer (addFiles)", error );
+            throw error;
+        }
+    }
+
+
+    async deleteFile(data) {
+        try {
+            //1. get data from the database using file id findOne,
+            const fileData= await fileRepo.get(data.fileId);
+          
+            if(!fileData) throw new Error(" File is not Found ")
+
+            // 2. check ownership
+            if (fileData.ownerId.toString() !== data.userId) 
+                    throw new Error("Access denied")
+            
+            // 2.1 delete from s3 
+            const result=  await s3Service.deleteObject(fileData.s3Key)
+            if(!result)
+                throw new Error(' Deleteing Failed ')
+
+            //  3 delete file by id 
+            const res = await fileRepo.destroy(data.fileId)
            
             return res;
         } catch (error) {

@@ -1,10 +1,7 @@
 const multer = require('multer');
 
 const path = require('path');
-const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
-const { GetObjectCommand } = require('@aws-sdk/client-s3');
-const { BUCKET_NAME } = require('../config/serverConfig');
-const s3 = require('../config/awsConfig');
+
 
 
 const upload = multer({
@@ -34,52 +31,6 @@ const upload = multer({
 
 
 
-
-
-async function getFileSignedUrl({ s3Key,  expiresIn = 3600, mode = "preview", originalName}) {
-  try {
-    const params = {
-      Bucket: BUCKET_NAME,
-      Key: s3Key 
-    };
-
-    console.log(mode, originalName)
-
-    if (mode === "preview") {
-      params.ResponseContentDisposition = "inline";
-    }
-
-    if (mode === "download") {
-      params.ResponseContentDisposition = `attachment; filename="${originalName}"`;
-    }
-
-    const command = new GetObjectCommand(params);
-
-    const signedUrl = await getSignedUrl(s3, command, { expiresIn });
-    return signedUrl;
-
-  } catch (error) {
-    throw new Error(`Failed to generate signed URL: ${error.message}`);
-  }
-}
-
-
-
-
-
-
-
-
 module.exports = {
-  
   upload,
-  
-  uploadSingle: upload.single('file'),
-  
-  uploadMultiple: upload.array('files', 10),
-  
-  getFileSignedUrl,
-
-  
-  
 };

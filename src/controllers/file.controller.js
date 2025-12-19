@@ -1,4 +1,5 @@
-const {fileService} = require('../services/index');
+const {fileService, s3Service} = require('../services/index');
+const s3service = require('../services/s3.service');
 const {SucessCode, ServerErrosCodes} = require('../utlis/Errors/https_codes')
 
 
@@ -7,18 +8,23 @@ class FileController {
     async addFile(req,res) {
         try {
             
-            const fileData = req?.file; 
-            const userId = req?.userId; 
-          
-            console.log('from controller data => ', fileData)
+
+            // 1. check the file length , if single then file , or files[]
+            const files = req.files?.length
+                ? req.files
+                : req.file
+                ? [req.file]
+                : [];
+
+            //2. check length
+            if (files.length === 0) 
+                throw new Error('No files uploaded' )
             
-            const data = {
-                ownerId:userId,
-                originalName:fileData.originalname,
-                s3Key:fileData.key,
-                mimeType:fileData.mimetype,
-                size:fileData.size
-            }
+            //3. get userId
+            const userId = req?.userId;
+            const folderId = req?.body?.folderId; 
+            const data = {userId, files, folderId: folderId || null }
+            
 
             const response = await fileService.addFiles(data) ;
 
@@ -36,7 +42,7 @@ class FileController {
                 message: error.message,
                 sucess: false,
                 data: {},
-                err: error.explanation,
+                err: error,
             });
         }
     }
@@ -47,15 +53,8 @@ class FileController {
             
            
             const userId = req?.userId; 
-            const fileId = req?.params?.fileId; 
-            const {mode} = req?.query;
-           
-
-            let response; 
-            if(mode== "preview")
-                 response = await fileService.viewsFiles({userId, fileId, mode }) ;
-            if(mode== "download")
-             response = await fileService.viewsFiles({userId, fileId, mode }) ;
+            const fileId = req?.params?.fileId;            
+            const  response = await fileService.viewsFiles({userId, fileId }) ;
 
             return res.status(SucessCode.OK).json({
                 message: "Successfully  viewFile",
@@ -72,6 +71,34 @@ class FileController {
                 sucess: false,
                 data: {},
                 err: error.explanation,
+            });
+        }
+    }
+
+
+    async deleteFile(req,res ) {
+        try {
+             
+           
+            const userId = req?.userId; 
+            const fileId = req?.query?.fileId;            
+            const  response = await fileService.deleteFile({userId, fileId}) ;
+
+            return res.status(SucessCode.OK).json({
+                message: "Successfully  deleteFile",
+                success: true,
+                data: response,
+                err: {},
+            });
+
+        } catch (error) {
+            console.log("something went wrong in controller  level  (deleteFile) ", error )
+
+            return res.status(error.statusCode  | ServerErrosCodes.INTERNAL_SERVER_ERROR).json({
+                message: error.message,
+                sucess: false,
+                data: {},
+                err: error,
             });
         }
     }
