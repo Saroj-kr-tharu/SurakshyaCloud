@@ -91,8 +91,65 @@ class FolderController {
             });
         }
     }
-    
 
+
+    async detailsFolder(req,res ) {
+        try {
+            
+           
+            const userId = req?.userId;
+            const parentId = req?.parentId;
+            const folderId = req?.params?.folderId;   
+              
+            const  response = await folderService.detailFolder({userId,parentId: parentId || null , folderId}) ;
+
+            return res.status(SucessCode.OK).json({
+                message: "Successfully  viewFolder",
+                success: true,
+                data: response,
+                err: {},
+            });
+
+        } catch (error) {
+            console.log("something went wrong in controller  level  (viewFolder) ", error )
+
+            return res.status(error.statusCode  | ServerErrosCodes.INTERNAL_SERVER_ERROR).json({
+                message: error.message,
+                sucess: false,
+                data: {},
+                err: error.explanation,
+            });
+        }
+    }
+    
+    async moveFolder(req,res ) {
+        try {
+            
+           
+            const userId = req?.userId;
+            const targetFolderId = req?.body?.targetFolderId;
+            const folderId = req?.params?.folderId;   
+              
+            const  response = await folderService.moveFolder({userId, folderId, targetFolderId }) ;
+
+            return res.status(SucessCode.OK).json({
+                message: "Successfully  moveFolder",
+                success: true,
+                data: response,
+                err: {},
+            });
+
+        } catch (error) {
+            console.log("something went wrong in controller  level  (moveFolder) ", error )
+
+            return res.status(error.statusCode  | ServerErrosCodes.INTERNAL_SERVER_ERROR).json({
+                message: error.message,
+                sucess: false,
+                data: {},
+                err: error.explanation,
+            });
+        }
+    }
 
 }
 

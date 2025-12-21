@@ -16,6 +16,7 @@ class FileController {
                 ? [req.file]
                 : [];
 
+                // console.log('files => ', files)
             //2. check length
             if (files.length === 0) 
                 throw new Error('No files uploaded' )
@@ -127,6 +128,61 @@ class FileController {
                 sucess: false,
                 data: {},
                 err: error,
+            });
+        }
+    }
+
+     async detailsFile(req,res ) {
+        try {
+            
+           
+            const userId = req?.userId; 
+            const fileId = req?.params?.fileId;            
+            const  response = await fileService.detailFile({userId, fileId }) ;
+
+            return res.status(SucessCode.OK).json({
+                message: "Successfully  detailsFile",
+                success: true,
+                data: response,
+                err: {},
+            });
+
+        } catch (error) {
+            console.log("something went wrong in controller  level  (detailsFile) ", error )
+
+            return res.status(error.statusCode  | ServerErrosCodes.INTERNAL_SERVER_ERROR).json({
+                message: error.message,
+                sucess: false,
+                data: {},
+                err: error.explanation,
+            });
+        }
+    }
+
+      async moveFile(req,res ) {
+        try {
+            
+           
+            const userId = req?.userId; 
+            const fileId = req?.params?.fileId;     
+            const targetFolderId = req?.body?.targetFolderId;       
+            const  response = await fileService.moveFile({userId ,fileId, targetFolderId}) ;
+
+            return res.status(SucessCode.OK).json({
+                message: "Successfully  moveFile",
+                success: true,
+                data: response,
+                err: {},
+            });
+
+        } catch (error) {
+            console.log("something went wrong in controller  level  (moveFile) ", error )
+
+            return res.status(error.statusCode  | ServerErrosCodes.INTERNAL_SERVER_ERROR).json({
+                message: error.message,
+                sucess: false,
+                data: {},
+                err: error.explanation,
             });
         }
     }

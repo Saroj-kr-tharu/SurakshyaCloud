@@ -35,9 +35,9 @@ class CurdRepo {
         }
     }
 
-    async update(id, data) {
+    async update(id, data, session=null) {
         try {
-            const tag = await this.model.findByIdAndUpdate(id, data, { new: true });
+            const tag = await this.model.findByIdAndUpdate(id, data, { new: true, session  });
             return tag;
         } catch (error) {
             console.log('Something went wrong in repo (get)');

@@ -7,9 +7,11 @@ class FileRepo extends CurdRepo {
         super(fileModel)
     }; 
 
-    async bulkCreate(data) {
+    async bulkCreate(data, session = null) {
         try {
-            const result = await fileModel.insertMany(data);
+            const options = {};
+            if (session) options.session = session;
+            const result = await fileModel.insertMany(data, options);
             return result;
         } catch (error) {
             console.log('Something went wrong in fileRepo (bulkCreate)');

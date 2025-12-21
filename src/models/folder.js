@@ -15,9 +15,13 @@ const folderSchema = new mongoose.Schema({
         ref: 'Folder',
         default: null, 
     },
+    size: {
+        type: Number,
+        default: 0
+    },
 
     path: {
-        type: String,   // for faster queries
+        type: String,   
         required: true
     },
 
