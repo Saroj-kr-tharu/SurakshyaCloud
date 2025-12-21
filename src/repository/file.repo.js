@@ -47,6 +47,38 @@ class FileRepo extends CurdRepo {
         }
     } 
 
+    async findManyFiles(folderIds) {
+        try { 
+          
+            const result = await fileModel.find({ 
+                folderId: { $in: folderIds },
+            });
+            return result;
+        } catch (error) {
+            console.log('Something went wrong in FolderRepo (findManyFiles)');
+
+            throw error;
+        }
+    }
+
+    async deleteManyFiles(folderIds, session=null) {
+        try { 
+          
+            const options = {};
+            if (session) options.session = session;
+
+            const result = await fileModel.deleteMany(
+                { folderId: { $in: folderIds } },
+                options
+            );
+            return result;
+        } catch (error) {
+            console.log('Something went wrong in FolderRepo (deleteManyFiles)');
+
+            throw error;
+        }
+    }
+
 
 }
 

@@ -62,6 +62,37 @@ class FolderRepo extends CurdRepo {
         }
     }
 
+    async deleteManyfolder(filter,  options = {}) {
+        try { 
+          
+            const result = await folderModel.deleteMany(
+                filter,
+                options
+            );
+            console.log('result => ', result )
+            return result;
+        } catch (error) {
+            console.log('Something went wrong in FolderRepo (deleteManyfolder)');
+
+            throw error;
+        }
+    }
+
+    async findManyFolder(userId, folderIds) {
+        try { 
+          
+            const result = await folderModel.find({
+                    _id: { $in: folderIds },
+                    ownerId: userId,
+                });
+            return result;
+        } catch (error) {
+            console.log('Something went wrong in FolderRepo (deleteManyfolder)');
+
+            throw error;
+        }
+    }
+
 
 
 }

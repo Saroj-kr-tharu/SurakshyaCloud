@@ -2,6 +2,7 @@ const curdService = require("./curdService");
 const {folderRepo, fileRepo} = require('../repository/index');
 const { default: mongoose } = require("mongoose");
 const fileService = require('./file.service')
+const s3Service = require('./s3.service')
 
 
 class folderService extends curdService{
@@ -206,7 +207,46 @@ class folderService extends curdService{
         }
     }
 
-    
+    async deleteFolder({ userId, folderIds }) {  
+        const session = await mongoose.startSession();
+        session.startTransaction()
+        try {
+            // 1. check folders is exist or not 
+            const foldersData = await folderRepo.findManyFolder(userId, folderIds)
+
+            // 2. verify the ownership of the folders with user 
+            if(foldersData.length !== folderIds.length) 
+                throw new Error(" One of folders are  not accessible ")
+
+            //2.1 find all the files of selected folders  
+            const files = await fileRepo.findManyFiles(folderIds)
+            
+            //2.2 delete all fils from s3 and db 
+            for (const file of files) {
+                await s3Service.deleteObject(file.s3Key);
+                }
+            await fileRepo.deleteManyFiles(folderIds, session);
+            
+            // 3. delete sub folders 
+            await folderRepo.deleteManyfolder({ parentFolderId: { $in: folderIds } }, session);
+            
+            // 4. delete all folders  
+            await folderRepo.deleteManyfolder({ _id: { $in: folderIds } }, session);
+
+            // 5. update the size of folder
+
+            // 6.commit the transaction 
+            await session.commitTransaction();
+            session.endSession();
+            
+        } catch (error) {
+            await session.abortTransaction();
+            session.endSession(); 
+            console.log("Something went wrong in service layer (deleteFolder)", error );
+            throw error;
+        }
+    }
+
 
 }
 

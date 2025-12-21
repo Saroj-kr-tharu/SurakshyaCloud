@@ -92,6 +92,39 @@ class FolderController {
         }
     }
 
+    async deleteFolder(req,res ) {
+        try {
+            
+           
+            const userId = req?.userId;
+            const {folderIds} = req?.body;   
+
+            if (!Array.isArray(folderIds) || folderIds.length === 0) 
+                throw new Error("folderIds must be an array")
+            
+           
+              
+            const  response = await folderService.deleteFolder({userId, folderIds}) ;
+
+            return res.status(SucessCode.OK).json({
+                message: "Successfully  deleteFolder",
+                success: true,
+                data: response,
+                err: {},
+            });
+
+        } catch (error) {
+            console.log("something went wrong in controller  level  (viewFolder) ", error )
+
+            return res.status(error.statusCode  | ServerErrosCodes.INTERNAL_SERVER_ERROR).json({
+                message: error.message,
+                sucess: false,
+                data: {},
+                err: error.explanation,
+            });
+        }
+    }
+
 
     async detailsFolder(req,res ) {
         try {

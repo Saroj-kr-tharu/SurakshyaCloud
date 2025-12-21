@@ -35,6 +35,7 @@ router.get('/folders/root', usermiddleware.verifyToken, usermiddleware.validateA
 router.get('/folders/:folderId', usermiddleware.verifyToken, usermiddleware.validateAcessToken, folderCtrl.viewFolder);
 router.get('/folders/:folderId/details', usermiddleware.verifyToken, usermiddleware.validateAcessToken, folderCtrl.detailsFolder);
 router.patch('/folders/:folderId/move', usermiddleware.verifyToken, usermiddleware.validateAcessToken, folderCtrl.moveFolder);
+router.delete('/folders', usermiddleware.verifyToken, usermiddleware.validateAcessToken, folderCtrl.deleteFolder);
 
  
 module.exports = router;
