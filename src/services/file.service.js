@@ -6,6 +6,7 @@ const mongoose = require('mongoose')
 const s3Service = require('./s3.service');
 
 
+
 class userService extends curdService{
 
        constructor(){
@@ -221,6 +222,34 @@ class userService extends curdService{
              return {
                 totalFiles: filesIds.length
              }
+
+        } catch (error) {
+            console.log("Something went wrong in service layer (deleteManyFile)", error );
+            throw error;
+        }
+    }
+
+    async bulkDeleteFileByFolderId(folderIds, userId, session=null) {
+        try { 
+           // 1.1 check files is exist or not     
+            const filesData = await fileRepo.findManyFiles( {  folderId: { $in: folderIds }, ownerId: userId, }  )
+
+            // 1.3 delete all files from s3 
+                // 1.3.1 make list of s3key 
+                const objects3 = filesData.map(item => ({
+                    Key: item.s3Key
+                }));
+
+              if(objects3.length > 0)
+                await s3Service.bulkdeleteObject(objects3);
+            
+            // 1.3 Delete all files from db 
+            // 1.3. make list of filesIds 
+            const filesIds = filesData.map(item => ( item._id ) )
+            if(filesIds.length > 0)
+                await fileRepo.deleteManyFiles( { _id: { $in: filesIds } } , session)
+
+            
 
         } catch (error) {
             console.log("Something went wrong in service layer (deleteManyFile)", error );

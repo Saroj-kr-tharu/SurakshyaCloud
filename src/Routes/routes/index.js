@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const {userCtrl, fileCtrl, folderCtrl} = require('../../controllers/index')
+const {userCtrl, fileCtrl, folderCtrl, itemCtrl} = require('../../controllers/index')
 const {usermiddleware} = require('../../middlewares/index')
 const multerHelper = require('../../utlis/multerHelper');
 
@@ -24,7 +24,6 @@ router.post( "/auth/logout",  userCtrl.logout );
 router.post( "/user/files",usermiddleware.verifyToken, usermiddleware.validateAcessToken , multerHelper.upload.any(),   fileCtrl.addFile );
 router.get( "/user/file/:fileId",usermiddleware.verifyToken, usermiddleware.validateAcessToken , fileCtrl.viewFile );
 router.get( "/file/:fileId/details",usermiddleware.verifyToken, usermiddleware.validateAcessToken , fileCtrl.detailsFile );
-router.delete( "/user/file",usermiddleware.verifyToken, usermiddleware.validateAcessToken , fileCtrl.deleteFile );
 router.patch( "/user/file/:fileId/rename",usermiddleware.verifyToken, usermiddleware.validateAcessToken , fileCtrl.renameFile );
 router.patch( "/user/file/:fileId/move",usermiddleware.verifyToken, usermiddleware.validateAcessToken , fileCtrl.moveFile );
 
@@ -36,8 +35,10 @@ router.get('/folders/:folderId', usermiddleware.verifyToken, usermiddleware.vali
 router.get('/folders/:folderId/details', usermiddleware.verifyToken, usermiddleware.validateAcessToken, folderCtrl.detailsFolder);
 router.patch('/folders/:folderId/move', usermiddleware.verifyToken, usermiddleware.validateAcessToken, folderCtrl.moveFolder);
 
-// items => file and folder 
-router.delete('/items', usermiddleware.verifyToken, usermiddleware.validateAcessToken, folderCtrl.deleteItems);
+// items 
+router.delete('/items', usermiddleware.verifyToken, usermiddleware.validateAcessToken, itemCtrl.deleteItems);
+router.patch('/items', usermiddleware.verifyToken, usermiddleware.validateAcessToken, itemCtrl.moveItems);
+
 
  
 module.exports = router;

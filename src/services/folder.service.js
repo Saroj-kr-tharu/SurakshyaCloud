@@ -111,9 +111,8 @@ class folderService extends curdService{
     }
 
 
-    async moveFolder({ userId,  folderId, targetFolderId   }) {  
-        const session = await mongoose.startSession();
-        session.startTransaction()
+    async moveFolder({ userId,  folderId, targetFolderId , session=null   }) {  
+     
         try {
             
             // 1. check the folder is exist
@@ -191,8 +190,7 @@ class folderService extends curdService{
                 );
             }
 
-            await session.commitTransaction();
-            session.endSession();
+          
 
             return {
                 targetFolderId , 
@@ -200,8 +198,7 @@ class folderService extends curdService{
             }
             
         } catch (error) {
-            await session.abortTransaction();
-            session.endSession(); 
+          
             console.log("Something went wrong in service layer (moveFolder)", error );
             throw error;
         }
@@ -209,7 +206,6 @@ class folderService extends curdService{
 
     async deleteManyFolder({ userId, folderIds  }, session=null) {  
         try {
-
                 // 1. check folders is exist or not 
                 const foldersData = await folderRepo.findManyFolder(userId, folderIds)
 
@@ -221,7 +217,8 @@ class folderService extends curdService{
                 const files = await fileRepo.findManyFiles( {   folderId: { $in: folderIds },})
                 
                 // 4 delete all files from db 
-                const totalFiles =  await fileRepo.deleteManyFiles({ folderId:  { $in: folderIds } }, session);
+                const totalFiles = await fileService.bulkDeleteFileByFolderId(folderIds, userId, session)
+                // const totalFiles =  await fileRepo.deleteManyFiles({ folderId:  { $in: folderIds } }, session);
                 
                 // 5 delete sub folders
                     // get all subfolders
@@ -240,10 +237,11 @@ class folderService extends curdService{
 
                 let TotaldeletesubFolder; 
                 if(subfoldersId.length > 0){
+                    await fileService.bulkDeleteFileByFolderId(subfoldersId,userId , session);
                     TotaldeletesubFolder =  await folderRepo.deleteManyfolder({ _id: { $in: subfoldersId } }, session);
 
                     //delete all the files under subfolders 
-                     await fileRepo.deleteManyFiles({ folderId:  { $in: subfoldersId } }, session);
+                    //  await fileRepo.deleteManyFiles({ folderId:  { $in: subfoldersId } }, session);
                 }
                    
 
@@ -256,7 +254,7 @@ class folderService extends curdService{
                         Key: item.s3Key
                     }));
 
-                    if(objects3.length != 0 )
+                    if(objects3.length > 0 )
                         await s3Service.bulkdeleteObject(objects3);
                     
             
@@ -272,7 +270,7 @@ class folderService extends curdService{
                  return { 
                     totalFolder: folderIds.length,
                     totalSubfolderdelte : TotaldeletesubFolder || 0, 
-                    totalfiles: totalFiles.length || 0 
+                    totalfiles: totalFiles || 0 
                  }
                  
             
@@ -282,38 +280,7 @@ class folderService extends curdService{
         }
     }
 
-    async deleteItems( userId, folderIds=[], filesIds=[] ) {  
-
-        const session = await mongoose.startSession();
-        session.startTransaction()
-        try {
-            let FilesResult ; 
-            let FolderResult; 
-
-            // 1.0 delete first file    
-            if(filesIds.length !== 0 ){
-               FilesResult =  await  fileService.deleteManyFile(filesIds, userId, session) ;
-                }
-            
-            // 2.0 delete folders 
-            if(folderIds.length !==0 ){
-              FolderResult= await this.deleteManyFolder( {userId, folderIds} , session) ;
-            }
-
-            // 6.commit the transaction 
-            await session.commitTransaction();
-            session.endSession();
-            return {
-                FilesResult, 
-                FolderResult
-            } ; 
-        } catch (error) {
-            await session.abortTransaction();
-            session.endSession(); 
-            console.log("Something went wrong in service layer (deleteFolder)", error );
-            throw error;
-        }
-    }
+    
 
 
 }

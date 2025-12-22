@@ -70,11 +70,7 @@ class s3Service {
 
     async bulkdeleteObject(object_key_list){
         try {
-            // [
-            //     { Key: "folder/file1.txt" },
-            //     { Key: "folder/file2.jpg" },
-            //     { Key: "anotherfile.pdf" }
-            // ]
+            
             const command = new DeleteObjectsCommand({
                 Bucket: BUCKET_NAME,
                Delete: {

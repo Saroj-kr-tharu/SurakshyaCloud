@@ -40,7 +40,7 @@ class curdService {
 
     async getByidService(id) {
         try {
-            const res = await this.repo.getByid(id);
+            const res = await this.repo.get(id);
             return res;
         } catch (error) {
             console.log("Something went wrong in service layer (getAllService)");

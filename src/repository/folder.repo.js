@@ -113,7 +113,7 @@ class FolderRepo extends CurdRepo {
 
     async findManyFolder(userId, folderIds) {
         try { 
-          
+                 
             const result = await folderModel.find({
                     _id: { $in: folderIds },
                     ownerId: userId,
