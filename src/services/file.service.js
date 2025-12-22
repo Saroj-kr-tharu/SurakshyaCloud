@@ -161,34 +161,69 @@ class userService extends curdService{
     }
 
 
-    async deleteFile(data) {
+    async deleteFile(data, session=null) {
         try {
             //1. get data from the database using file id findOne,
             const fileData= await fileRepo.get(data.fileId);
-          
             if(!fileData) throw new Error(" File is not Found ")
 
-            // 2. check ownership
-            if (fileData.ownerId.toString() !== data.userId) 
-                    throw new Error("Access denied")
-            
-            // 2.1 delete from s3 
+            // 2 delete from s3 
             const result=  await s3Service.deleteObject(fileData.s3Key)
             if(!result)
                 throw new Error(' Deleteing Failed ')
 
             //  3 delete file by id 
-            const res = await fileRepo.destroy(data.fileId)
+            const res = await fileRepo.destroy(data.fileId, session)
             
-            //4. maintain the size of the folder 
+            // 4. maintain the size of the folder 
              if(fileData.folderId){
                 const size = -fileData.size; 
-                await this.propagateFolderSize(fileData.folderId, size);
+                await this.propagateFolderSize(fileData.folderId, size, session);
             }
            
             return res;
         } catch (error) {
-            console.log("Something went wrong in service layer (addFiles)", error );
+            console.log("Something went wrong in service layer (deleteFile)", error );
+            throw error;
+        }
+    }
+
+    async deleteManyFile(filesIds, userId, session=null) {
+        try { 
+           // 1.1 check files is exist or not     
+            const filesData = await fileRepo.findManyFiles( {  _id: { $in: filesIds }, ownerId: userId, }  )
+
+            // 1.1.1 check owernship of files with user 
+            if(filesData.length !== filesIds.length) 
+                throw new Error(" One of files are  not accessible ")
+            
+            // 1.3 delete all files from s3 
+                // 1.3.1 make list of s3key 
+                const objects3 = filesData.map(item => ({
+                    Key: item.s3Key
+                }));
+
+                if(objects3.length == 0 ) throw new Error(" s3 key is not found  ")
+                await s3Service.bulkdeleteObject(objects3);
+            
+            // 1.3 Delete all files from db 
+            await fileRepo.deleteManyFiles( { _id: { $in: filesIds } } , session)
+
+            // 1.4 maintain the size of the folder 
+                //1.5 check it is root file or inside the folder file 
+                const isRoot = filesData.every(file => !file.folderId);
+            
+                if(isRoot == false){
+                    const totalFileSize = filesData.reduce( (acc, file) => acc + file.size, 0 );
+                    await this.propagateFolderSize(filesData[0].folderId, -totalFileSize, session);
+                }
+            
+             return {
+                totalFiles: filesIds.length
+             }
+
+        } catch (error) {
+            console.log("Something went wrong in service layer (deleteManyFile)", error );
             throw error;
         }
     }

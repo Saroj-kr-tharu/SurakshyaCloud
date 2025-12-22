@@ -92,22 +92,22 @@ class FolderController {
         }
     }
 
-    async deleteFolder(req,res ) {
+    async deleteItems(req,res ) {
         try {
             
            
             const userId = req?.userId;
-            const {folderIds} = req?.body;   
+            const {folders} = req?.body;   
+            const {files} = req?.body;   
 
-            if (!Array.isArray(folderIds) || folderIds.length === 0) 
-                throw new Error("folderIds must be an array")
-            
-           
-              
-            const  response = await folderService.deleteFolder({userId, folderIds}) ;
+
+           if ( (!Array.isArray(folders) || folders.length === 0) && (!Array.isArray(files) || files.length === 0) ) 
+            throw new Error("At least one of folders or files must be a non-empty array");
+        
+            const  response = await folderService.deleteItems(userId, folders, files) ;
 
             return res.status(SucessCode.OK).json({
-                message: "Successfully  deleteFolder",
+                message: "Successfully  deleteItems",
                 success: true,
                 data: response,
                 err: {},
@@ -129,7 +129,6 @@ class FolderController {
     async detailsFolder(req,res ) {
         try {
             
-           
             const userId = req?.userId;
             const parentId = req?.parentId;
             const folderId = req?.params?.folderId;   

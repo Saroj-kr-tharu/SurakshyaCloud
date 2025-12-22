@@ -47,12 +47,12 @@ class FileRepo extends CurdRepo {
         }
     } 
 
-    async findManyFiles(folderIds) {
+    async findManyFiles(filter) {
         try { 
           
-            const result = await fileModel.find({ 
-                folderId: { $in: folderIds },
-            });
+            const result = await fileModel.find(
+               filter
+            );
             return result;
         } catch (error) {
             console.log('Something went wrong in FolderRepo (findManyFiles)');
@@ -61,14 +61,14 @@ class FileRepo extends CurdRepo {
         }
     }
 
-    async deleteManyFiles(folderIds, session=null) {
+    async deleteManyFiles(filter, session=null) {
         try { 
           
             const options = {};
             if (session) options.session = session;
 
             const result = await fileModel.deleteMany(
-                { folderId: { $in: folderIds } },
+                filter,
                 options
             );
             return result;

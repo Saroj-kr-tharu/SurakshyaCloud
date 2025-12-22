@@ -10,8 +10,6 @@ class userService extends curdService{
     }
 
 
-
-    
     async loginService(data, res){
         try {
             const {password, email} = data;

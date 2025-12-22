@@ -1,5 +1,6 @@
 const CurdRepo = require("./curdRepo");
 const  folderModel = require('../models/folder')
+const mongoose = require('mongoose')
 
 
 class FolderRepo extends CurdRepo { 
@@ -17,6 +18,38 @@ class FolderRepo extends CurdRepo {
             throw error;
         }
     } 
+
+    async getAllSubFolders(folderId, ownerId) {
+        try {
+            const result = await folderModel.aggregate([
+            {
+                $match: {
+                _id: new mongoose.Types.ObjectId(folderId),
+                ownerId: new mongoose.Types.ObjectId(ownerId),
+                isDeleted: false
+                }
+            },
+            {
+                $graphLookup: {
+                from: 'folders',          // collection name
+                startWith: '$_id',
+                connectFromField: '_id',
+                connectToField: 'parentId',
+                as: 'subFolders',
+                restrictSearchWithMatch: {
+                    isDeleted: false
+                }
+                }
+            }
+            ]);
+          
+            return result[0]?.subFolders || [];
+        } catch (error) {
+            console.log('Something went wrong in getAllSubFolders');
+            throw error;
+        }
+        }
+
 
     async getFolderBydata(data) {
         try {

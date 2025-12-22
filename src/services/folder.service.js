@@ -207,38 +207,106 @@ class folderService extends curdService{
         }
     }
 
-    async deleteFolder({ userId, folderIds }) {  
+    async deleteManyFolder({ userId, folderIds  }, session=null) {  
+        try {
+
+                // 1. check folders is exist or not 
+                const foldersData = await folderRepo.findManyFolder(userId, folderIds)
+
+                // 2. verify the ownership of the folders with user 
+                if(foldersData.length !== folderIds.length) 
+                    throw new Error(" One of folders are  not accessible ")
+                
+                //3 find all the files of selected folders  and perfom delete 
+                const files = await fileRepo.findManyFiles( {   folderId: { $in: folderIds },})
+                
+                // 4 delete all files from db 
+                const totalFiles =  await fileRepo.deleteManyFiles({ folderId:  { $in: folderIds } }, session);
+                
+                // 5 delete sub folders
+                    // get all subfolders
+                    const subfoldersId = [];
+                    const allSubFolders = await Promise.all(
+                    folderIds.map(folderId =>
+                        folderRepo.getAllSubFolders(folderId, userId)
+                        )
+                    );
+
+                    allSubFolders.forEach(subfolders => {
+                        subfolders.forEach(folder => {
+                            subfoldersId.push(folder._id.toString());
+                        });
+                    });
+
+                let TotaldeletesubFolder; 
+                if(subfoldersId.length > 0){
+                    TotaldeletesubFolder =  await folderRepo.deleteManyfolder({ _id: { $in: subfoldersId } }, session);
+
+                    //delete all the files under subfolders 
+                     await fileRepo.deleteManyFiles({ folderId:  { $in: subfoldersId } }, session);
+                }
+                   
+
+                // 6 delete all folder
+                await folderRepo.deleteManyfolder({ _id: { $in: folderIds } }, session);
+
+                // 7 delete from s3 
+                    // 1.3.1 make list of s3key 
+                    const objects3 = files.map(item => ({
+                        Key: item.s3Key
+                    }));
+
+                    if(objects3.length != 0 )
+                        await s3Service.bulkdeleteObject(objects3);
+                    
+            
+
+                // 8. update the size of folder and check if it is root folder 
+                 // calculate the totalSize 
+                 const isRoot = foldersData.every(folder => !folder.parentId);
+                 if(isRoot == false){
+                     const totalFolderSize = foldersData.reduce( (acc, folder) => acc + folder.size, 0 );
+                     await fileService.propagateFolderSize(foldersData[0].parentId, -totalFolderSize, session)
+                 }
+
+                 return { 
+                    totalFolder: folderIds.length,
+                    totalSubfolderdelte : TotaldeletesubFolder || 0, 
+                    totalfiles: totalFiles.length || 0 
+                 }
+                 
+            
+        } catch (error) {
+            console.log("Something went wrong in service layer (deleteManyFolder)", error );
+            throw error;
+        }
+    }
+
+    async deleteItems( userId, folderIds=[], filesIds=[] ) {  
+
         const session = await mongoose.startSession();
         session.startTransaction()
         try {
-            // 1. check folders is exist or not 
-            const foldersData = await folderRepo.findManyFolder(userId, folderIds)
+            let FilesResult ; 
+            let FolderResult; 
 
-            // 2. verify the ownership of the folders with user 
-            if(foldersData.length !== folderIds.length) 
-                throw new Error(" One of folders are  not accessible ")
-
-            //2.1 find all the files of selected folders  
-            const files = await fileRepo.findManyFiles(folderIds)
-            
-            //2.2 delete all fils from s3 and db 
-            for (const file of files) {
-                await s3Service.deleteObject(file.s3Key);
+            // 1.0 delete first file    
+            if(filesIds.length !== 0 ){
+               FilesResult =  await  fileService.deleteManyFile(filesIds, userId, session) ;
                 }
-            await fileRepo.deleteManyFiles(folderIds, session);
             
-            // 3. delete sub folders 
-            await folderRepo.deleteManyfolder({ parentFolderId: { $in: folderIds } }, session);
-            
-            // 4. delete all folders  
-            await folderRepo.deleteManyfolder({ _id: { $in: folderIds } }, session);
-
-            // 5. update the size of folder
+            // 2.0 delete folders 
+            if(folderIds.length !==0 ){
+              FolderResult= await this.deleteManyFolder( {userId, folderIds} , session) ;
+            }
 
             // 6.commit the transaction 
             await session.commitTransaction();
             session.endSession();
-            
+            return {
+                FilesResult, 
+                FolderResult
+            } ; 
         } catch (error) {
             await session.abortTransaction();
             session.endSession(); 

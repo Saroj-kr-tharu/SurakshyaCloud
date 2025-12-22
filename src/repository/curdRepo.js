@@ -45,9 +45,12 @@ class CurdRepo {
         }
     }
 
-    async destroy(id) {
+    async destroy(id, session=null) {
         try {
-            const result = await this.model.findByIdAndDelete(id);
+            const options = {};
+            if (session) options.session = session;
+            console.log('id => ', id  , " and session => ", session )
+            const result = await this.model.findByIdAndDelete(id, options);
             return result;
         } catch (error) {
             console.log('Something went wrong in repo (destory)');
