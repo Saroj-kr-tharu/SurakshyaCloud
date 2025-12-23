@@ -37,6 +37,54 @@ class ShareController {
             });
         }
     }
+    async getAllPublicShare(req,res ) {
+        try {           
+            const ownerId = req.userId;
+
+            const response = await shareService.getAllPublicShareLink({ownerId});
+
+            return res.status(SucessCode.OK).json({
+                message: "Successfully  getAllPublicShare",
+                success: true, 
+                data: response,
+                err: {},
+            });
+
+        } catch (error) {
+            console.log("something went wrong in ShareController  level  (getAllPublicShare) ", error )
+
+            return res.status(error.statusCode  | ServerErrosCodes.INTERNAL_SERVER_ERROR).json({
+                message: error.message,
+                sucess: false,
+                data: {},
+                err: error.explanation,
+            });
+        }
+    }
+
+    async bulkDeleteShare(req,res ) {
+        try {           
+            const ownerId = req.userId;
+            const linkIds = req?.body?.links; 
+            const response = await shareService.bulkDeleteSharelink({ownerId, linkIds});
+
+            return res.status(SucessCode.OK).json({
+                message: "Successfully  bulkDeleteShare",
+                success: true, 
+                data: response,
+                err: {},
+            });
+
+        } catch (error) {
+            console.log("something went wrong in ShareController  level  (bulkDeleteShare) ", error )
+            return res.status(error.statusCode  | ServerErrosCodes.INTERNAL_SERVER_ERROR).json({
+                message: error.message,
+                sucess: false,
+                data: {},
+                err: error.explanation,
+            });
+        }
+    }
 
     async openShareLink(req,res ) {
         try {
@@ -91,30 +139,25 @@ class ShareController {
         }
     }
 
+
     // private 
-    async createPrivateShare(req,res ) {
+    async grantAccess(req,res ) {
         try {
             
-            const { resourceType, resourceId, permission, expiresAt } = req.body;
+            const { resourceType, resourceId, permission } = req.body;
             const ownerId = req.userId;
-            const email = req?.email; 
-            const payload = { resourceType, resourceId, permission, ownerId, email };
-
-            if (expiresAt) {
-                payload.expiresAt = expiresAt;
-            }
-
-            const response = await shareService.createPublicShareLink(payload);
+            const email = req?.body?.email;
+            const response = await accessService.grantAcess({ resourceType, resourceId, permission, email, ownerId});
 
             return res.status(SucessCode.OK).json({
-                message: "Successfully  createPublicShare",
+                message: "Successfully  grantAccess",
                 success: true, 
                 data: response,
                 err: {},
             });
 
         } catch (error) {
-            console.log("something went wrong in ShareController  level  (createPublicShare) ", error )
+            console.log("something went wrong in ShareController  level  (grantAccess) ", error )
 
             return res.status(error.statusCode  | ServerErrosCodes.INTERNAL_SERVER_ERROR).json({
                 message: error.message,
@@ -124,7 +167,60 @@ class ShareController {
             });
         }
     }
- 
+    
+     async getAllAccessByEmail(req,res ) {
+        try {
+            
+            const userId = req.userId;
+            
+            const response = await accessService.getAllAcessItems({   userId});
+
+            return res.status(SucessCode.OK).json({
+                message: "Successfully  getAllAccessByEmail",
+                success: true, 
+                data: response,
+                err: {},
+            });
+
+        } catch (error) {
+            console.log("something went wrong in ShareController  level  (getAllAccessByEmail) ", error )
+
+            return res.status(error.statusCode  | ServerErrosCodes.INTERNAL_SERVER_ERROR).json({
+                message: error.message,
+                sucess: false,
+                data: {},
+                err: error.explanation,
+            });
+        }
+    }
+
+
+     async getAccessItems(req,res ) {
+        try {
+            
+            const userId = req.userId;
+            const resourceId = req?.params?.item;
+            const rootPath = req?.body?.rootPath || null ; 
+            const response = await accessService.getItems({userId, resourceId, rootPath})
+
+            return res.status(SucessCode.OK).json({
+                message: "Successfully  getAccessItems",
+                success: true, 
+                data: response,
+                err: {},
+            });
+
+        } catch (error) {
+            console.log("something went wrong in ShareController  level  (getAllAccessByEmail) ", error )
+
+            return res.status(error.statusCode  | ServerErrosCodes.INTERNAL_SERVER_ERROR).json({
+                message: error.message,
+                sucess: false,
+                data: {},
+                err: error.explanation,
+            });
+        }
+    }
 
 }
 

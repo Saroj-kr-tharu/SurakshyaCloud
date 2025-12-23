@@ -9,6 +9,20 @@ class userService extends curdService{
         super(userRepo)
     }
 
+    async getByEmail(email){
+        try {
+        
+            const infoUser = await userRepo.getByEmail(email);
+            return infoUser;
+            
+
+        } catch (error) {
+            console.log("something went wrong in service curd level  (getByEmail) ")
+            
+             throw error;
+           
+        }
+    }
 
     async loginService(data, res){
         try {
@@ -143,7 +157,7 @@ class userService extends curdService{
         }
     }
 
-       async logout(data, res){
+    async logout(data, res){
         try {
            
             const user = await jwt_helper.verifyRefreshToken(data);

@@ -91,7 +91,7 @@ class UserMiddleware {
             
             if(!response) throw new Error(' Invalid Access Token  ')
             req.userId= response?.data?.id
-            req.email= response?.data?.email
+           
             next();
             
             

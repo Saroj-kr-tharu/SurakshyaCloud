@@ -7,7 +7,7 @@
 ![Node](https://img.shields.io/badge/node-%3E%3D14.0.0-brightgreen.svg)
 ![License](https://img.shields.io/badge/license-ISC-green.svg)
 
-**A enterprise-grade, secure cloud storage backend with AWS S3 integration, JWT authentication, and role-based access control.**
+**A enterprise-grade, secure cloud storage backend with AWS S3 integration, JWT authentication, role-based access control, and collaborative file sharing.**
 
 [Features](#-features) • [Installation](#-installation) • [API Documentation](#-api-endpoints) • [Architecture](#-architecture)
 
@@ -33,14 +33,15 @@
 
 ## 🌟 Overview
 
-**SurakshyaCloud** is a production-ready, scalable cloud storage backend service built with Node.js and Express. It provides secure file and folder management capabilities with AWS S3 integration, CloudFront CDN for content delivery, and comprehensive authentication and authorization mechanisms.
+**SurakshyaCloud** is a production-ready, scalable cloud storage backend service built with Node.js and Express. It provides secure file and folder management capabilities with AWS S3 integration, CloudFront CDN for content delivery, comprehensive authentication and authorization mechanisms, and advanced sharing features for collaboration.
 
 ### Key Highlights
 
 - 🔐 **Enterprise Security**: JWT-based authentication with refresh tokens and role-based access control
 - ☁️ **AWS Integration**: S3 for storage, CloudFront for CDN with signed URLs
 - 📁 **Hierarchical Storage**: Folder structure with file organization capabilities
-- 🚀 **Scalable Architecture**: Clean separation of concerns with Repository-Service-Controller pattern
+- � **Collaborative Sharing**: Public share links and private access control for files/folders
+- �🚀 **Scalable Architecture**: Clean separation of concerns with Repository-Service-Controller pattern
 - 📊 **Storage Management**: Track user storage quotas and file metadata
 - 🔄 **File Operations**: Upload, download, rename, move, and delete with atomic operations
 
@@ -82,7 +83,17 @@
 ### Bulk Operations
 - ✅ Bulk delete items (files/folders)
 - ✅ Bulk move items between folders
+- ✅ Bulk move (files/folders)
 - ✅ Transaction-like operations for data consistency
+
+### Sharing & Collaboration
+- ✅ **Public Sharing**: Generate shareable links with tokens for files/folders
+- ✅ **Permission Control**: View-only or download permissions for shared resources
+- ✅ **Expirable Links**: Set expiration dates on public share links
+- ✅ **Private Access Grant**: Share files/folders with specific users by email
+- ✅ **Access Management**: View and manage all shared resources and granted access
+- ✅ **Secure Token-Based Access**: Cryptographically secure share tokens
+- ✅ **Share Link Validation**: Automatic expiry checking and access control
 
 ---
 
@@ -210,6 +221,7 @@ Ensure you have the following installed:
    ```env
    # Server Configuration
    PORT=3000
+   APP_URL=http://localhost:3000/api/v1
 
    # JWT Secrets
    PRIVATEJWT=your-access-token-secret-key-here
@@ -265,6 +277,7 @@ Ensure you have the following installed:
 | Variable | Required | Description | Example |
 |----------|----------|-------------|---------|
 | `PORT` | Yes | Server port number | `3000` |
+| `APP_URL` | Yes | Application base URL for share links | `http://localhost:3000/api/v1` |
 | `PRIVATEJWT` | Yes | Secret key for access tokens | `your-secret-key` |
 | `PRIVATEJWTRefersh` | Yes | Secret key for refresh tokens | `your-refresh-secret` |
 | `AWS_ACCESSKEYID` | Yes | AWS access key ID | `AKIAIOSFODNN7EXAMPLE` |
@@ -340,6 +353,7 @@ Ensure you have the following installed:
 │   │   ├── file.controller.js      # File operations controller
 │   │   ├── folder.controller.js    # Folder operations controller
 │   │   ├── items.controller.js     # Bulk items operations controller
+│   │   ├── share.controller.js     # Share & access management controller
 │   │   └── user.controller.js      # User & auth controller
 │   │
 │   ├── middlewares/                 # Express middlewares
@@ -349,6 +363,8 @@ Ensure you have the following installed:
 │   ├── models/                      # Mongoose data models
 │   │   ├── file.js                 # File schema & model
 │   │   ├── folder.js               # Folder schema & model
+│   │   ├── share.js                # Public share links schema & model
+│   │   ├── access.js               # Private access control schema & model
 │   │   └── users.js                # User schema & model
 │   │
 │   ├── repository/                  # Data access layer
@@ -356,6 +372,8 @@ Ensure you have the following installed:
 │   │   ├── curdRepo.js             # Generic CRUD operations
 │   │   ├── file.repo.js            # File-specific DB operations
 │   │   ├── folder.repo.js          # Folder-specific DB operations
+│   │   ├── share.repo.js           # Share links DB operations
+│   │   ├── access.repo.js          # Access control DB operations
 │   │   └── user.repo.js            # User-specific DB operations
 │   │
 │   ├── services/                    # Business logic layer
@@ -365,6 +383,8 @@ Ensure you have the following installed:
 │   │   ├── folder.service.js       # Folder business logic
 │   │   ├── items.service.js        # Bulk operations logic
 │   │   ├── s3.service.js           # AWS S3 operations service
+│   │   ├── share.service.js        # Public share links business logic
+│   │   ├── access.service.js       # Private access control business logic
 │   │   └── user.service.js         # User & auth service
 │   │
 │   ├── Routes/                      # API route definitions
@@ -376,6 +396,7 @@ Ensure you have the following installed:
 │       ├── index.js                # Utility exports
 │       ├── awsHelper.js            # AWS helper functions
 │       ├── bcryptHelper.js         # Password hashing utilities
+│       ├── cryptoHelper.js         # Crypto utilities (token generation)
 │       ├── jwtHelper.js            # JWT token utilities
 │       ├── multerHelper.js         # File upload configuration
 │       └── Errors/
@@ -703,6 +724,153 @@ PATCH /items
   "targetFolderId": "507f1f77bcf86cd799439014"
 }
 ```
+
+---
+
+### Sharing & Collaboration Endpoints
+
+#### 1. Create Public Share Link
+```http
+POST /share/public
+```
+**Headers:**
+```
+Cookie: accessToken=<jwt-token>
+```
+**Request Body:**
+```json
+{
+  "resourceType": "file",
+  "resourceId": "507f1f77bcf86cd799439012",
+  "permission": "view",
+  "expiresAt": "2025-12-31T23:59:59.000Z"
+}
+```
+**Response:** `200 OK`
+```json
+{
+  "message": "Successfully createPublicShare",
+  "success": true,
+  "data": {
+    "publicShareLink": "http://localhost:3000/api/v1/share/a1b2c3d4e5f6g7h8"
+  },
+  "err": {}
+}
+```
+
+#### 2. Get All Public Share Links
+```http
+GET /share/public
+```
+**Headers:**
+```
+Cookie: accessToken=<jwt-token>
+```
+**Response:** `200 OK`
+```json
+{
+  "message": "Successfully getAllPublicShare",
+  "success": true,
+  "data": [
+    {
+      "shareId": "507f1f77bcf86cd799439015",
+      "resourceType": "file",
+      "resourceId": "507f1f77bcf86cd799439012",
+      "token": "a1b2c3d4e5f6g7h8",
+      "permission": "view",
+      "expiresAt": "2025-12-31T23:59:59.000Z",
+      "createdAt": "2025-12-23T10:30:00.000Z"
+    }
+  ],
+  "err": {}
+}
+```
+
+#### 3. Open Shared Link (Public Access)
+```http
+GET /share/:token
+```
+**Description:** Access shared file/folder without authentication
+**Response:** 
+- For files: Redirects to CloudFront signed URL
+- For folders: Returns folder contents with files list
+
+#### 4. Get File from Shared Folder
+```http
+GET /share/:token/file/:fileId
+```
+**Description:** Access specific file within a shared folder
+**Response:** Returns CloudFront signed URL for the file
+
+#### 5. Bulk Delete Share Links
+```http
+DELETE /share/public
+```
+**Headers:**
+```
+Cookie: accessToken=<jwt-token>
+```
+**Request Body:**
+```json
+{
+  "linkIds": ["507f1f77bcf86cd799439015", "507f1f77bcf86cd799439016"]
+}
+```
+
+#### 6. Grant Private Access to User
+```http
+POST /access/grant
+```
+**Headers:**
+```
+Cookie: accessToken=<jwt-token>
+```
+**Request Body:**
+```json
+{
+  "resourceType": "folder",
+  "resourceId": "507f1f77bcf86cd799439013",
+  "permission": "download",
+  "email": "colleague@example.com"
+}
+```
+**Response:** `200 OK`
+```json
+{
+  "message": "Successfully grantAccess",
+  "success": true,
+  "data": {
+    "email": "colleague@example.com",
+    "resourceType": "folder",
+    "resourceId": "507f1f77bcf86cd799439013"
+  },
+  "err": {}
+}
+```
+
+#### 7. Get All Access Granted to Me
+```http
+GET /access
+```
+**Headers:**
+```
+Cookie: accessToken=<jwt-token>
+```
+**Response:** Lists all files/folders shared with the current user
+
+#### 8. Access Shared Item
+```http
+GET /access/:item
+```
+**Headers:**
+```
+Cookie: accessToken=<jwt-token>
+```
+**Description:** Access file/folder shared privately with the user
+**Response:**
+- For files: Returns CloudFront signed URL
+- For folders: Returns folder structure with rootpath for navigation
+
 ---
 
 ## 👨‍💻 Development

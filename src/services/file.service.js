@@ -7,6 +7,7 @@ const s3Service = require('./s3.service');
 
 
 
+
 class userService extends curdService{
 
        constructor(){
@@ -120,7 +121,7 @@ class userService extends curdService{
 
             // 2. check ownership
             if (fileData.ownerId.toString() !== data.userId) 
-                    throw new Error("Access denied")
+                   throw new Error(" Access Denie ")
                 
             //  2.1 if mode == download then increase the downloadcount +1 ;
             await fileRepo.update(fileData._id.toString(), { $inc: { downloadCount: 1 } } )
@@ -133,9 +134,8 @@ class userService extends curdService{
                 signedUrl, 
                 originalName: fileData.originalName, 
             }
-
-           
             return res;
+           
         } catch (error) {
             console.log("Something went wrong in service layer (addFiles)", error );
             throw error;

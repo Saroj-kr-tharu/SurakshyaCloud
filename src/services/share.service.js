@@ -57,6 +57,30 @@ class ShareService extends curdService{
         }
     }
 
+    async getAllPublicShareLink({ownerId}) { 
+        try {
+           
+            const res = await shareRepo.getByUserId(ownerId);
+            return res ;
+           
+        } catch (error) {
+            console.log("Something went wrong in service layer (addFiles)", error );
+            throw error;
+        }
+    }
+
+    async bulkDeleteSharelink({ownerId, linkIds}) { 
+        try {
+           
+            const res = await shareRepo.manyDelete(ownerId, linkIds);
+            return res ;
+           
+        } catch (error) {
+            console.log("Something went wrong in service layer (addFiles)", error );
+            throw error;
+        }
+    }
+
     async validateShareLink(token) { 
         try {
             // get data by token 
