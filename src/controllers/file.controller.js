@@ -1,5 +1,4 @@
-const {fileService, s3Service} = require('../services/index');
-const s3service = require('../services/s3.service');
+const {fileService} = require('../services/index');
 const {SucessCode, ServerErrosCodes} = require('../utlis/Errors/https_codes')
 
 
@@ -134,33 +133,7 @@ class FileController {
         }
     }
 
-      async moveFile(req,res ) {
-        try {
-            
-           
-            const userId = req?.userId; 
-            const fileId = req?.params?.fileId;     
-            const targetFolderId = req?.body?.targetFolderId;       
-            const  response = await fileService.moveFile({userId ,fileId, targetFolderId}) ;
-
-            return res.status(SucessCode.OK).json({
-                message: "Successfully  moveFile",
-                success: true,
-                data: response,
-                err: {},
-            });
-
-        } catch (error) {
-            console.log("something went wrong in controller  level  (moveFile) ", error )
-
-            return res.status(error.statusCode  | ServerErrosCodes.INTERNAL_SERVER_ERROR).json({
-                message: error.message,
-                sucess: false,
-                data: {},
-                err: error.explanation,
-            });
-        }
-    }
+   
 
 }
 

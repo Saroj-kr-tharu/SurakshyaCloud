@@ -40,11 +40,92 @@ class folderService extends curdService{
         }
     }
 
+    #buildFolderPath(folder, folderMap) {
+        let path = folder.name;
+        let current = folder;
+
+        while (current.parentId) {
+            current = folderMap.get(current.parentId.toString());
+            if (!current) break;
+            path = `${current.name}/${path}`;
+        }
+
+        return `${path}/`;
+    }
+
+
+    #formatFolderTree(rootFolder, subFolders, files) {
+        const folderMap = new Map();
+
+        // include root
+        folderMap.set(rootFolder._id.toString(), rootFolder);
+
+        subFolders.forEach(f =>
+            folderMap.set(f._id.toString(), f)
+        );
+
+        const result = {};
+
+        // create folder entries with full details
+        for (const folder of folderMap.values()) {
+            const path = this.#buildFolderPath(folder, folderMap);
+
+            result[path] = {
+                _id: folder._id,
+                name: folder.name,
+                ownerId: folder.ownerId,
+                parentId: folder.parentId,
+                size: folder.size,
+                path: folder.path,     // stored path
+                isDeleted: folder.isDeleted,
+                updatedAt: folder.updatedAt,
+                items: []
+            };
+        }
+
+        // attach files
+        for (const file of files) {
+            const folder = folderMap.get(file.folderId?.toString());
+            if (!folder) continue;
+
+            const path = this.#buildFolderPath(folder, folderMap);
+            result[path].items.push(file);
+        }
+
+        return result;
+    }
+
+
+    async getAllFolderWithFiles({ folderId, userId }) {
+        try {
+            const data = await folderRepo.getFolderWithFiles(folderId, userId);
+            const root = Array.isArray(data) ? data[0] : data;
+
+            if (!root) throw new Error("Folder not found");
+
+            return this.#formatFolderTree(
+                root,
+                root.subFolders || [],
+                root.files || []
+            );
+
+        } catch (error) {
+            console.log(
+                "Something went wrong in getAllFolderWithFiles",
+                error
+            );
+            throw error;
+        }
+    }
+
+
+
 
     async viewRootFolder({ userId,parentId=null,folderId=null   }) {  
         try {
-             // 1. get all the folder of user which parentId = null 
+               // 1. get all the folder of user which parentId = null 
                const folders = await folderRepo.getFolderBydata({userId, parentId })
+    
                // 2. get all the file of user which folderId = null 
                const files = await fileRepo.getFiles({userId, folderId})
                // 3. return folder , file (originalName)
@@ -63,7 +144,7 @@ class folderService extends curdService{
 
     async viewFolder({ userId, folderId=null   }) {  
         try {
-             // 1. get all the folder of user which parentId = null 
+                // 1. get all the folder of user which parentId = null 
                const folders = await folderRepo.getFolderBydata({userId, parentId:folderId })
                // 2. get all the file of user which folderId = null 
                const files = await fileRepo.getFiles({userId, folderId})
@@ -73,6 +154,8 @@ class folderService extends curdService{
                 files
                }
                return res ;
+
+            
             
         } catch (error) {
             console.log("Something went wrong in service layer (viewRootFolder)", error );
@@ -81,12 +164,11 @@ class folderService extends curdService{
     }
 
 
-
     async detailFolder({ userId, folderId=null   }) {  
         try {
           // 1. get folder 
-         const folderData = await folderRepo.get(folderId);
-         
+        const folderData = await folderRepo.get(folderId);
+        
         if(!folderData) throw new Error(" Folder is not Found ")
 
         // 2. check ownership

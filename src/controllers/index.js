@@ -3,4 +3,5 @@ module.exports = {
     fileCtrl : require('./file.controller'),
     folderCtrl : require('./folder.controller'),
     itemCtrl : require('./items.controller'),
+    shareCtrl : require('./share.controller'),
 }

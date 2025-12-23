@@ -35,7 +35,6 @@ class s3Service {
     async pullObject({ s3Key,  expiresIn = 300,}){
         try {
 
-        
             const signedUrl = getSignedUrl({
                 url: `${CLOUDFRONT_DOMAIN}${s3Key}`,
                 dateLessThan: new Date(Date.now() + expiresIn * 1000).toISOString(),

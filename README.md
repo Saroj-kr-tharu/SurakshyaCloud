@@ -424,18 +424,7 @@ Ensure you have the following installed:
 - ✅ **Input Validation**: Request validation in middlewares
 - ✅ **Error Handling**: Centralized error handling without data leakage
 
-### Best Practices
 
-1. **Never commit `.env` file** - Add to `.gitignore`
-2. **Use strong JWT secrets** - Generate cryptographically secure keys
-3. **Rotate credentials regularly** - Update AWS keys and JWT secrets
-4. **Configure CORS properly** - Restrict origins in production
-5. **Use HTTPS in production** - Enable SSL/TLS for all communications
-6. **Monitor CloudFront logs** - Track access patterns and anomalies
-7. **Implement rate limiting** - Prevent brute force attacks (recommended)
-8. **Regular security audits** - Run `npm audit` and update dependencies
-
----
 
 ---
 
@@ -743,22 +732,6 @@ PATCH /items
 mongosh mongodb://localhost:27017/surakshya_cloud
 ```
 
-
-
-### Common Development Tasks
-
-**Add new API endpoint:**
-1. Create controller method in `src/controllers/`
-2. Create service method in `src/services/`
-3. Create repository method in `src/repository/` (if needed)
-4. Define route in `src/Routes/routes/index.js`
-5. Add middleware validation (if needed)
-
-**Add new database model:**
-1. Create schema in `src/models/`
-2. Export model
-3. Create repository for DB operations
-4. Create service for business logic
 
 ---
 

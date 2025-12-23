@@ -17,6 +17,59 @@ class FolderRepo extends CurdRepo {
 
             throw error;
         }
+    }
+    
+    async getFolderWithFiles(folderId, ownerId, ) {
+        try {
+          const data = await folderModel.aggregate([
+                {
+                    $match: {
+                        _id: new mongoose.Types.ObjectId(folderId),
+                        ownerId: new mongoose.Types.ObjectId(ownerId),
+                        isDeleted: false
+                    }
+                },
+                {
+                    $graphLookup: {
+                        from: 'folders',
+                        startWith: '$_id',
+                        connectFromField: '_id',
+                        connectToField: 'parentId',
+                        as: 'subFolders',
+                        restrictSearchWithMatch: { isDeleted: false }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'files',
+                    let: {
+                            folderIds: {
+                            $concatArrays: [['$_id'], '$subFolders._id']
+                        }
+                    },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                $and: [
+                                    { $in: ['$folderId', '$$folderIds'] },
+                                    { $eq: ['$ownerId', new mongoose.Types.ObjectId(ownerId)] }
+                                ]
+                                }
+                            }
+                        }
+                    ],
+                        as: 'files'
+                    }
+                }
+                ]);
+            return data; 
+
+        } catch (error) {
+            console.log('Something went wrong in fileRepo (getFolderWithFiles)');
+
+            throw error;
+        }
     } 
 
     async getAllSubFolders(folderId, ownerId) {

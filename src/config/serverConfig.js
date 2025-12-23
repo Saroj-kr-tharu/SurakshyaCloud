@@ -9,6 +9,7 @@ module.exports = {
 
   PRIVATE_JWT: process.env.PRIVATEJWT,
   PRIVATEJWTRefersh: process.env.PRIVATEJWTRefersh,
+  APP_URL: process.env.APP_URL,
 
   
   AWS_ACCESS_KEY_ID: process.env.AWS_ACCESSKEYID,

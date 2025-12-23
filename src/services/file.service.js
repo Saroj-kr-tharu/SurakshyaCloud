@@ -144,11 +144,12 @@ class userService extends curdService{
 
     async detailFile({ userId, fileId  }) {   
         try {
+          
         //1. get data from the database using file id findOne,
         const fileData= await fileRepo.get(fileId);
         
         if(!fileData) throw new Error(" File is not Found ")
-
+        console.log('file data => ', fileData, ' \n userid => ', userId)
         // 2. check ownership
         if (fileData.ownerId.toString() !== userId) 
                 throw new Error("Access denied")

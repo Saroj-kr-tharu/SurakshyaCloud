@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const {userCtrl, fileCtrl, folderCtrl, itemCtrl} = require('../../controllers/index')
+const {userCtrl, fileCtrl, folderCtrl, itemCtrl, shareCtrl} = require('../../controllers/index')
 const {usermiddleware} = require('../../middlewares/index')
 const multerHelper = require('../../utlis/multerHelper');
 
@@ -25,7 +25,6 @@ router.post( "/user/files",usermiddleware.verifyToken, usermiddleware.validateAc
 router.get( "/user/file/:fileId",usermiddleware.verifyToken, usermiddleware.validateAcessToken , fileCtrl.viewFile );
 router.get( "/file/:fileId/details",usermiddleware.verifyToken, usermiddleware.validateAcessToken , fileCtrl.detailsFile );
 router.patch( "/user/file/:fileId/rename",usermiddleware.verifyToken, usermiddleware.validateAcessToken , fileCtrl.renameFile );
-router.patch( "/user/file/:fileId/move",usermiddleware.verifyToken, usermiddleware.validateAcessToken , fileCtrl.moveFile );
 
 
 // folder
@@ -33,12 +32,19 @@ router.post( "/user/folders",usermiddleware.verifyToken, usermiddleware.validate
 router.get('/folders/root', usermiddleware.verifyToken, usermiddleware.validateAcessToken, folderCtrl.viewRootFolder);
 router.get('/folders/:folderId', usermiddleware.verifyToken, usermiddleware.validateAcessToken, folderCtrl.viewFolder);
 router.get('/folders/:folderId/details', usermiddleware.verifyToken, usermiddleware.validateAcessToken, folderCtrl.detailsFolder);
-router.patch('/folders/:folderId/move', usermiddleware.verifyToken, usermiddleware.validateAcessToken, folderCtrl.moveFolder);
 
 // items 
 router.delete('/items', usermiddleware.verifyToken, usermiddleware.validateAcessToken, itemCtrl.deleteItems);
 router.patch('/items', usermiddleware.verifyToken, usermiddleware.validateAcessToken, itemCtrl.moveItems);
 
+// share
+  // public  
+router.post( "/share/public", usermiddleware.verifyToken, usermiddleware.validateAcessToken, shareCtrl.createPublicShare );
+router.get('/share/:token', shareCtrl.openShareLink);
+router.get('/share/:token/:fileId', shareCtrl.getFileShareLink);
+// private 
+router.post( "/access/grant", usermiddleware.verifyToken, usermiddleware.validateAcessToken, shareCtrl.createPrivateShare );
 
- 
+
+
 module.exports = router;
