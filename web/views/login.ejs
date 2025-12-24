@@ -1,0 +1,88 @@
+<div class="min-h-[73vh] w-full flex items-center justify-center px-4 py-8">
+    <div class="w-full max-w-md">
+        <div class="bg-base-200 border border-base-300 rounded-2xl shadow-xl p-6 sm:p-8">
+            <!-- Header -->
+            <div class="text-center mb-6">
+                <h1 class="text-2xl sm:text-3xl font-bold text-base-content">Welcome Back</h1>
+                <p class="text-sm text-base-content/70 mt-2">Please login to your account</p>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" method="POST" action="/login" class="space-y-4">
+                <% fieldList.forEach(field=> { %>
+                    <div class="form-control w-full">
+                        <label class="label">
+                            <span class="label-text flex items-center gap-2">
+                                <i class="<%= field.icon %>"></i>
+                                <span>
+                                    <%= field.title %>
+                                </span>
+                            </span>
+                        </label>
+                        <input type="<%= field.type %>" name="<%= field.name || field.title.toLowerCase() %>"
+                            class="input input-bordered w-full focus:input-primary transition-all"
+                            placeholder="Enter <%= field.title.toLowerCase() %>" required />
+                    </div>
+                    <% }) %>
+
+                        <!-- Remember Me & Forgot Password -->
+                        <div class="flex items-center justify-between text-sm">
+
+                            <a href="/forgot-password" class="link link-primary">Forgot password?</a>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary w-full">
+                            <span>Login</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+
+                        <!-- Sign Up Link -->
+                        <div class="text-center text-sm">
+                            <span class="text-base-content/70">Don't have an account?</span>
+                            <a href="/register" class="link link-primary ml-1">Sign up</a>
+                        </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData);
+        alert('data => ', data);
+        console.log('data => ', data)
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            // Check if response is JSON before parsing
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                const result = await response.json();
+
+                if (response.ok) {
+                    window.location.href = result.redirect || '/dashboard';
+                } else {
+                    alert(result.message || 'Login failed');
+                }
+            } else {
+                // Handle non-JSON response (likely HTML error page)
+                const text = await response.text();
+                console.error('Server returned non-JSON response:', text);
+                alert('Server error. Please check console for details.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    });
+</script>

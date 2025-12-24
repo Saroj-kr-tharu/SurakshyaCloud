@@ -1,0 +1,98 @@
+<!-- STICKY NAVBAR -->
+<div class="sticky top-0 z-50 backdrop-blur bg-base-300/80 border-b border-base-content/10">
+    <div class="navbar h-20 w-full max-w-7xl mx-auto px-3 sm:px-4">
+
+        <!-- LEFT / LOGO -->
+        <div class="navbar-start">
+            <a href="/" class="flex items-center gap-2">
+                <div class="shrink-0 w-8 h-8 sm:w-12 sm:h-12">
+                    <img src="/assets/logo.png" alt="Surakshya Cloud Logo" class="w-full h-full object-cover rounded">
+                </div>
+                <span class="text-xl sm:text-2xl font-semibold uppercase
+                     bg-linear-to-r from-red-500 via-rose-500 to-pink-500
+                     text-transparent bg-clip-text">
+                    Surakshya Cloud
+                </span>
+            </a>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="navbar-end gap-2">
+
+            <!-- MOBILE MENU -->
+            <div class="dropdown dropdown-end lg:hidden">
+                <label tabindex="0" class="btn btn-ghost">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </label>
+
+                <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 w-52 rounded-box
+                   bg-base-100 shadow z-50">
+
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/files">My Files</a></li>
+
+                    <% if (!user) { %>
+                        <li><a href="/login">Login</a></li>
+                        <li><a href="/register">Register</a></li>
+                        <% } else { %>
+                            <li><a href="/profile">Profile</a></li>
+                            <li>
+                                <form action="/logout" method="POST">
+                                    <button class="w-full text-left">Logout</button>
+                                </form>
+                            </li>
+                            <% } %>
+                </ul>
+            </div>
+
+            <!-- DESKTOP MENU -->
+            <ul class="menu menu-horizontal hidden lg:flex gap-1">
+
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/files">My Files</a></li>
+
+                <% if (!user) { %>
+                    <li><a class="btn btn-sm btn-ghost" href="/login">Login</a></li>
+                    <li><a class="btn btn-sm btn-primary" href="/register">Register</a></li>
+                    <% } else { %>
+
+                        <!-- PROFILE DROPDOWN -->
+                        <li>
+                            <div class="dropdown dropdown-end">
+                                <label tabindex="0" class="btn btn-ghost btn-circle avatar">
+                                    <div class="w-9 rounded-full bg-primary text-primary-content
+                                flex items-center justify-center font-semibold">
+                                        <%= user.name?.charAt(0).toUpperCase() %>
+                                    </div>
+                                </label>
+
+                                <ul tabindex="0" class="menu dropdown-content mt-3 w-48 rounded-box
+                                    bg-base-100 shadow z-50">
+
+                                    <li class="px-3 py-2 text-sm opacity-70">
+                                        Signed in as <br>
+                                        <strong>
+                                            <%= user.email %>
+                                        </strong>
+                                    </li>
+
+                                    <li><a href="/profile">Profile</a></li>
+                                    <li><a href="/settings">Settings</a></li>
+
+                                    <li class="border-t">
+                                        <form action="/logout" method="POST">
+                                            <button class="w-full text-left px-4 py-2">
+                                                Logout
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <% } %>
+            </ul>
+
+        </div>
+    </div>
+</div>

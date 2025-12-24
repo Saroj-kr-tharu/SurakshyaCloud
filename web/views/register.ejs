@@ -1,0 +1,74 @@
+<div class="min-h-[73vh] w-full flex items-center justify-center px-4 py-8">
+    <div class="w-full max-w-md">
+        <div class="bg-base-200 border border-base-300 rounded-2xl shadow-xl p-6 sm:p-8">
+            <!-- Header -->
+            <div class="text-center mb-6">
+                <h1 class="text-2xl sm:text-3xl font-bold text-base-content">Welcome Back</h1>
+                <p class="text-sm text-base-content/70 mt-2">Please Register To Continue</p>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" method="POST" action="/register" class="space-y-4">
+                <% fieldList.forEach(field=> { %>
+                    <div class="form-control w-full">
+                        <label class="label">
+                            <span class="label-text flex items-center gap-2">
+                                <i class="<%= field.icon %>"></i>
+                                <span>
+                                    <%= field.title %>
+                                </span>
+                            </span>
+                        </label>
+                        <input type="<%= field.type %>" name="<%= field.name || field.title.toLowerCase() %>"
+                            class="input input-bordered w-full focus:input-primary transition-all"
+                            placeholder="Enter <%= field.title.toLowerCase() %>" required />
+                    </div>
+                    <% }) %>
+
+
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary w-full">
+                            <span>Register</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+
+                        <!-- Sign Up Link -->
+                        <div class="text-center text-sm">
+                            <span class="text-base-content/70">Already Have a account?</span>
+                            <a href="/login" class="link link-primary ml-1">Login</a>
+                        </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData);
+
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                window.location.href = result.redirect || '/dashboard';
+            } else {
+                alert(result.message || 'Login failed');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    });
+</script>
