@@ -1,14 +1,14 @@
 <div class="min-h-[73vh] w-full flex items-center justify-center px-4 py-8">
     <div class="w-full max-w-md">
-        <div class="bg-base-200 border border-base-300 rounded-2xl shadow-xl p-6 sm:p-8">
+        <div class="bg-base-200  border-base-300 border-2  rounded-2xl shadow-2xl p-6 sm:p-8">
             <!-- Header -->
             <div class="text-center mb-6">
                 <h1 class="text-2xl sm:text-3xl font-bold text-base-content">Welcome Back</h1>
-                <p class="text-sm text-base-content/70 mt-2">Please Register To Continue</p>
+                <p class="text-sm text-black font-semibold ">Please Register To Continue</p>
             </div>
 
             <!-- Login Form -->
-            <form id="loginForm" method="POST" action="/register" class="space-y-4">
+            <form id="registerForm" method="POST" action="/register" class="space-y-4">
                 <% fieldList.forEach(field=> { %>
                     <div class="form-control w-full">
                         <label class="label">
@@ -28,7 +28,7 @@
 
 
                         <!-- Submit Button -->
-                        <button type="submit" class="btn btn-primary w-full">
+                        <button type="submit" id="registerBtn" class="btn btn-primary w-full">
                             <span>Register</span>
                             <i class="fas fa-arrow-right"></i>
                         </button>
@@ -44,31 +44,63 @@
 </div>
 
 <script>
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData);
+        const btn = document.getElementById('registerBtn');
+
+        console.log('data => ', data)
+        if (!data.email || !data.password || !data.username || !data['repeat password']) {
+            toaster.error('Please fill in all fields', 'Validation Error');
+            return;
+        }
+
+        if (data['repeat password'] !== data.password) {
+            toaster.error('Password should be Same', 'Validation Error');
+            return;
+        }
+
+        // Disable button during request
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading loading-spinner"></span><span>Registering...</span>';
 
         try {
-            const response = await fetch('/login', {
+            const response = await fetch('<%= baseUrl %>/auth/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify(data)
             });
 
             const result = await response.json();
+            console.log('result => ', result)
 
             if (response.ok) {
-                window.location.href = result.redirect || '/dashboard';
+                toaster.success('Register Successfully. Redirecting to login...', 'Register Successful');
+                // Only reset form on success
+                e.target.reset();
+                // Keep button disabled until redirect
+                setTimeout(() => {
+                    window.location.href = result.redirect || '/login';
+                }, 1000);
             } else {
-                alert(result.message || 'Login failed');
+                // Error - show error message from API
+                toaster.error(result.message || 'Register failed. Please try again.', 'Register Failed');
+                // Don't reset form on failure so user can see what they entered
+                // Reset button
+                btn.disabled = false;
+                btn.innerHTML = '<span>Register</span><i class="fas fa-arrow-right"></i>';
             }
         } catch (error) {
-            console.error('Error:', error);
-            alert('An error occurred. Please try again.');
+            console.error('Registration error:', error);
+            toaster.error('Network error. Please try again.', 'Error');
+            // Reset button
+            btn.disabled = false;
+            btn.innerHTML = '<span>Register</span><i class="fas fa-arrow-right"></i>';
         }
     });
 </script>

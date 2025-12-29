@@ -9,8 +9,8 @@
                     <img src="/assets/logo.png" alt="Surakshya Cloud Logo" class="w-full h-full object-cover rounded">
                 </div>
                 <span class="text-xl sm:text-2xl font-semibold uppercase
-                     bg-linear-to-r from-red-500 via-rose-500 to-pink-500
-                     text-transparent bg-clip-text">
+          bg-linear-to-r from-red-500 via-rose-500 to-pink-500
+          text-transparent bg-clip-text">
                     Surakshya Cloud
                 </span>
             </a>
@@ -28,71 +28,106 @@
                 <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 w-52 rounded-box
                    bg-base-100 shadow z-50">
 
-                    <li><a href="/dashboard">Dashboard</a></li>
-                    <li><a href="/files">My Files</a></li>
+                    <% headerMenu.forEach(item=> { %>
+                        <li>
+                            <a href="<%= item.url %>" class="<%= currentPath === item.url ? 'bg-accent' : '' %>">
+                                <%= item.label %>
+                            </a>
+                        </li>
+                        <% }) %>
 
-                    <% if (!user) { %>
-                        <li><a href="/login">Login</a></li>
-                        <li><a href="/register">Register</a></li>
-                        <% } else { %>
-                            <li><a href="/profile">Profile</a></li>
-                            <li>
-                                <form action="/logout" method="POST">
-                                    <button class="w-full text-left">Logout</button>
-                                </form>
-                            </li>
-                            <% } %>
+                            <% if (user) { %>
+                                <div class="divider"></div>
+                                <li>
+                                    <form action="/logout" method="POST">
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                        <button type="submit" class="text-error w-full text-left">
+                                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                            Logout
+                                        </button>
+                                    </form>
+                                </li>
+                                <% } %>
+
                 </ul>
             </div>
 
             <!-- DESKTOP MENU -->
-            <ul class="menu menu-horizontal hidden lg:flex gap-1">
+            <ul class="menu menu-horizontal items-center hidden lg:flex gap-1">
 
-                <li><a href="/dashboard">Dashboard</a></li>
-                <li><a href="/files">My Files</a></li>
+                <% headerMenu.forEach(item=> { %>
 
-                <% if (!user) { %>
-                    <li><a class="btn btn-sm btn-ghost" href="/login">Login</a></li>
-                    <li><a class="btn btn-sm btn-primary" href="/register">Register</a></li>
-                    <% } else { %>
-
-                        <!-- PROFILE DROPDOWN -->
+                    <% if (item.label==='Profile' && user) { %>
                         <li>
                             <div class="dropdown dropdown-end">
                                 <label tabindex="0" class="btn btn-ghost btn-circle avatar">
                                     <div class="w-9 rounded-full bg-primary text-primary-content
-                                flex items-center justify-center font-semibold">
-                                        <%= user.name?.charAt(0).toUpperCase() %>
+                              flex items-center justify-center font-semibold">
+                                        <%= user.username?.charAt(0).toUpperCase() %>
                                     </div>
                                 </label>
 
-                                <ul tabindex="0" class="menu dropdown-content mt-3 w-48 rounded-box
-                                    bg-base-100 shadow z-50">
+                                <ul tabindex="0" class="menu dropdown-content mt-3 w-52 rounded-box
+                           bg-base-100 shadow-lg z-50 p-2">
 
-                                    <li class="px-3 py-2 text-sm opacity-70">
-                                        Signed in as <br>
-                                        <strong>
-                                            <%= user.email %>
-                                        </strong>
+                                    <!-- User Info -->
+                                    <li class="menu-title px-4 py-3 border-b border-base-300">
+                                        <div class="flex flex-col gap-1">
+                                            <span class="text-xs text-base-content/60">
+                                                Signed in as
+                                            </span>
+                                            <span class="text-sm font-semibold truncate">
+                                                <%= user.email %>
+                                            </span>
+                                        </div>
                                     </li>
 
-                                    <li><a href="/profile">Profile</a></li>
-                                    <li><a href="/settings">Settings</a></li>
+                                    <!-- Role -->
+                                    <li class="px-4 py-1">
+                                        <div class="flex justify-between text-xs">
+                                            <span>Role</span>
+                                            <span class="badge badge-primary badge-sm">
+                                                <%= user.role %>
+                                            </span>
+                                        </div>
+                                    </li>
 
-                                    <li class="border-t">
+                                    <div class="divider"></div>
+
+                                    <!-- Profile -->
+                                    <li>
+                                        <a href="/profile" class="text-sm">
+                                            <i class="fa-solid fa-user"></i>
+                                            View Profile
+                                        </a>
+                                    </li>
+
+                                    <!-- LOGOUT (POST) -->
+                                    <li>
                                         <form action="/logout" method="POST">
-                                            <button class="w-full text-left px-4 py-2">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                            <button type="submit" class="text-sm text-error w-full text-left">
+                                                <i class="fa-solid fa-arrow-right-from-bracket"></i>
                                                 Logout
                                             </button>
                                         </form>
                                     </li>
+
                                 </ul>
                             </div>
                         </li>
 
-                        <% } %>
-            </ul>
+                        <% } else { %>
+                            <li>
+                                <a href="<%= item.url %>" class="<%= currentPath === item.url ? 'bg-accent' : '' %>">
+                                    <%= item.label %>
+                                </a>
+                            </li>
+                            <% } %>
 
+                                <% }) %>
+
+            </ul>
         </div>
     </div>
 </div>

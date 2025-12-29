@@ -1,0 +1,146 @@
+<!-- Toast Container -->
+<div id="toastContainer" class="fixed top-5 right-5 z-9999 flex flex-col gap-3 max-w-md pointer-events-none"></div>
+
+<style>
+    @keyframes slideIn {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        to {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+    }
+
+    @keyframes progressBar {
+        from {
+            width: 100%;
+        }
+
+        to {
+            width: 0%;
+        }
+    }
+
+    .toast-slide-in {
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .toast-slide-out {
+        animation: slideOut 0.3s ease-out forwards;
+    }
+
+    .toast-progress {
+        animation: progressBar 3s linear forwards;
+    }
+</style>
+
+<script>
+    class Toaster {
+        constructor() {
+            this.container = document.getElementById('toastContainer');
+            this.toasts = [];
+        }
+
+        show(options) {
+            const {
+                type = 'info',
+                title = '',
+                message = '',
+                duration = 3000,
+                showProgress = true
+            } = options;
+
+            const toast = document.createElement('div');
+            toast.className = 'pointer-events-auto min-w-[300px] rounded-xl shadow-2xl flex items-start gap-3 p-4 backdrop-blur-sm toast-slide-in transition-all hover:-translate-x-1 relative overflow-hidden';
+
+            const typeStyles = {
+                success: 'bg-gradient-to-r from-green-500 to-green-600 text-white',
+                error: 'bg-gradient-to-r from-red-500 to-red-600 text-white',
+                warning: 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white',
+                info: 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
+            };
+
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-times-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+
+            toast.classList.add(...typeStyles[type].split(' '));
+
+            toast.innerHTML = `
+                <i class="fas ${icons[type]} text-2xl flex-shrink-0 mt-0.5"></i>
+                <div class="flex-1 min-w-0">
+                    ${title ? `<div class="font-semibold text-[15px] mb-1">${title}</div>` : ''}
+                    <div class="text-[13px] opacity-95 leading-relaxed">${message}</div>
+                </div>
+                <button class="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all hover:rotate-90" onclick="toaster.remove(this.parentElement)">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+                ${showProgress ? '<div class="absolute bottom-0 left-0 h-0.5 bg-white/50 rounded-full toast-progress"></div>' : ''}
+            `;
+
+            this.container.appendChild(toast);
+            this.toasts.push(toast);
+
+            if (duration > 0) {
+                setTimeout(() => this.remove(toast), duration);
+            }
+
+            return toast;
+        }
+
+        remove(toast) {
+            if (!toast || !toast.classList) return;
+
+            toast.classList.remove('toast-slide-in');
+            toast.classList.add('toast-slide-out');
+
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.parentElement.removeChild(toast);
+                }
+                this.toasts = this.toasts.filter(t => t !== toast);
+            }, 300);
+        }
+
+        success(message, title = 'Success') {
+            return this.show({ type: 'success', title, message });
+        }
+
+        error(message, title = 'Error') {
+            return this.show({ type: 'error', title, message });
+        }
+
+        warning(message, title = 'Warning') {
+            return this.show({ type: 'warning', title, message });
+        }
+
+        info(message, title = 'Info') {
+            return this.show({ type: 'info', title, message });
+        }
+
+        clearAll() {
+            this.toasts.forEach(toast => this.remove(toast));
+        }
+    }
+
+    // Initialize global toaster
+    const toaster = new Toaster();
+</script>

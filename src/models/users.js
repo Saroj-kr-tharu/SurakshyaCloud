@@ -26,6 +26,10 @@ const usersSchema = new mongoose.Schema({
         type:Number, 
         default: 0 
     },
+    storageMax: {
+        type:Number, 
+        default: 500 * 1024 * 1024 // 500MB in bytes
+    },
      refreshToken: {
         type: String,
         default: null, 

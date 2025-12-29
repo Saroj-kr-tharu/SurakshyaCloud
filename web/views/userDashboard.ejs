@@ -1,0 +1,1272 @@
+<!-- Modern Dashboard with 3D Effects and Full Functionality + Image Preview -->
+<div class="w-full max-w-7xl mx-auto px-3 sm:px-4 py-8 mb-16">
+    <!-- Header Section with Modern Gradient -->
+    <div class="mb-8">
+        <h1
+            class="text-4xl sm:text-5xl font-bold mb-3 bg-linear-to-r from-primary via-primary/80 to-primary/60 text-transparent bg-clip-text">
+            Manage Your Files & Folders
+        </h1>
+        <p class="text-base-content/70 text-lg">Organize, search, and manage your cloud storage efficiently</p>
+    </div>
+
+    <!-- Stats Section with 3D Hover Effects -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+        <% stats.forEach(stat=> { %>
+            <div class="stats shadow-xl bg-base-100
+             hover:shadow-2xl transition-all duration-300
+             transform hover:-translate-y-2 hover:scale-105
+             cursor-pointer border border-<%= stat.border %>/20">
+                <div class="stat">
+                    <div class="stat-figure text-<%= stat.color %>">
+                        <i class="fas <%= stat.icon %> text-4xl"></i>
+                    </div>
+                    <div class="stat-title text-base sm:text-xl font-bold">
+                        <%= stat.title %>
+                    </div>
+                    <div class="stat-value text-<%= stat.color %> text-3xl">
+                        <%= stat.value %>
+                    </div>
+                    <div class="stat-desc">
+                        <%= stat.desc %>
+                    </div>
+                </div>
+            </div>
+            <% }) %>
+    </div>
+
+    <!-- Sticky Action Bar with Modern Design -->
+    <div
+        class="sticky top-20 z-20 bg-linear-to-r from-base-300/95 to-base-200/95 backdrop-blur-lg shadow-2xl rounded-2xl p-4 sm:p-6 mb-8 border border-base-content/10">
+        <div class="flex flex-row gap-3 sm:gap-4 justify-center items-center">
+            <button
+                class="btn btn-primary btn-md w-1/2 sm:w-auto gap-2 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <i class="fas fa-upload text-lg"></i>
+                Upload Files
+            </button>
+            <button
+                class="btn btn-success btn-md w-1/2 sm:w-auto gap-2 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <i class="fas fa-folder-plus text-lg"></i>
+                Create Directory
+            </button>
+        </div>
+    </div>
+
+    <!-- Search, Filter and View Options -->
+    <div class="bg-base-100 rounded-2xl shadow-xl p-4 sm:p-6 mb-8 border border-base-content/10">
+        <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
+            <!-- Search Bar -->
+            <div class="form-control w-full lg:w-auto lg:flex-1 lg:max-w-md">
+                <div class="relative">
+                    <input type="text" id="searchInput" placeholder="Search files and folders..."
+                        class="input input-bordered w-full pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-base-content/50"></i>
+                </div>
+            </div>
+
+            <!-- View and Sort Controls -->
+            <div class="flex flex-wrap gap-3 items-center justify-center">
+                <!-- View Toggle -->
+                <div class="btn-group shadow-md">
+                    <button id="gridViewBtn" class="btn btn-sm sm:btn-md btn-active gap-2">
+                        <i class="fas fa-th"></i>
+                        <span class="hidden sm:inline">Grid</span>
+                    </button>
+                    <button id="listViewBtn" class="btn btn-sm sm:btn-md gap-2">
+                        <i class="fas fa-list"></i>
+                        <span class="hidden sm:inline">List</span>
+                    </button>
+                </div>
+
+                <!-- Sort Dropdown -->
+                <div class="dropdown dropdown-end">
+                    <label tabindex="0"
+                        class="btn btn-sm sm:btn-md btn-outline gap-2 shadow-md hover:shadow-lg transition-all">
+                        <i class="fas fa-sort"></i>
+                        <span class="hidden sm:inline">Sort:</span>
+                        <span id="currentSort">Name</span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </label>
+                    <ul tabindex="0"
+                        class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 mt-2 border border-base-content/10">
+                        <li><a onclick="sortItems('name')"><i class="fas fa-font mr-2"></i> Name</a></li>
+                        <li><a onclick="sortItems('date')"><i class="fas fa-calendar mr-2"></i> Date Modified</a></li>
+                        <li><a onclick="sortItems('size')"><i class="fas fa-weight mr-2"></i> Size</a></li>
+                        <li><a onclick="sortItems('type')"><i class="fas fa-tag mr-2"></i> Type</a></li>
+                    </ul>
+                </div>
+
+                <!-- Filter Badge -->
+                <div class="badge badge-primary badge-lg gap-2 hidden" id="activeFilter">
+                    <span id="filterText"></span>
+                    <i class="fas fa-times cursor-pointer" onclick="clearFilter()"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Breadcrumb Navigation -->
+    <div class="text-sm breadcrumbs px-2">
+        <ul class="bg-base-200 rounded-lg px-4 py-3 shadow-md">
+            <li class="text-base">
+                <i class="fas fa-home mr-2 text-primary"></i>
+                <span class="font-semibold">root-sarojc11345...</span>
+            </li>
+        </ul>
+    </div>
+
+
+    <!-- Files and Folders Container -->
+    <div id="itemsContainer" class="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+        <!-- Dynamic Folders -->
+        <% if (folders && folders.length> 0) { %>
+            <% folders.forEach(folder=> { %>
+                <div class="item-card folder" data-name="<%= folder.name %>" data-type="folder"
+                    data-size="<%= folder.size ? (folder.size / 1024).toFixed(2) : '0' %>"
+                    data-date="<%= (folder.updatedAt || folder.createdAt) ? new Date(folder.updatedAt || folder.createdAt).toISOString().split('T')[0] : '' %>">
+                    <div
+                        class="card bg-base-100 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 cursor-pointer border border-base-content/10 group">
+                        <div class="card-body  p-5">
+                            <div class="flex items-start justify-around mb-3">
+                                <div class="p-3 rounded-xl bg-blue-500/10 group-hover:bg-blue-500/20 transition-all">
+                                    <i
+                                        class="fas fa-folder text-5xl text-blue-500 group-hover:scale-110 transition-transform card-icon"></i>
+                                </div>
+                                <div class="dropdown dropdown-end">
+                                    <label tabindex="0" class="btn btn-ghost btn-sm btn-circle hover:bg-base-200">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </label>
+                                    <ul tabindex="0"
+                                        class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 border border-base-content/10">
+                                        <% itemActions .filter(a=> a.targets.includes("folder"))
+                                            .forEach(action => { %>
+                                            <li onclick="handleFileActionsClick(this)">
+                                                <a class="hover:bg-<%= action.color %>/10"
+                                                    data-action="<%= action.action %>" data-id="<%= folder._id %>"
+                                                    data-type="folder">
+                                                    <i class="fas <%= action.icon %> mr-2 text-<%= action.color %>"></i>
+                                                    <%= action.label %>
+                                                </a>
+                                            </li>
+                                            <% }) %>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="ml-6">
+
+                                <h3
+                                    class="card-title text-lg font-bold mb-2 group-hover:text-primary transition-colors truncate">
+                                    <%= folder.name %>
+                                </h3>
+                                <div class="text-sm space-y-1 card-meta">
+                                    <div class="badge badge-primary badge-sm">Folder</div>
+                                    <p class="text-base-content/70">Size: <%= folder.size ? (folder.size /
+                                            1024).toFixed(2) : '0' %> KB</p>
+                                    <p class="text-base-content/50 text-xs">Modified: <%= (folder.updatedAt ||
+                                            folder.createdAt) ? new Date(folder.updatedAt ||
+                                            folder.createdAt).toLocaleDateString('en-US', { year: 'numeric' ,
+                                            month: 'short' , day: '2-digit' }) : 'N/A' %>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% }); %>
+                    <% } %>
+
+                        <!-- Dynamic Files -->
+                        <% if (files && files.length> 0) { %>
+                            <% files.forEach(file=> {
+                                const fileExt = file.originalName.split('.').pop().toLowerCase();
+                                const fileType = file.mimeType.split('/')[0];
+                                let iconClass = 'fa-file';
+                                let colorClass = 'gray-500';
+                                let badgeClass = 'badge-neutral';
+                                let badgeText = fileExt.toUpperCase();
+
+                                if (fileType === 'image') {
+                                iconClass = 'fa-file-image';
+                                colorClass = 'green-500';
+                                badgeClass = 'badge-success';
+                                badgeText = fileExt.toUpperCase() + ' Image';
+                                } else if (file.mimeType === 'application/pdf') {
+                                iconClass = 'fa-file-pdf';
+                                colorClass = 'red-500';
+                                badgeClass = 'badge-error';
+                                badgeText = 'PDF Document';
+                                } else if (fileType === 'video') {
+                                iconClass = 'fa-file-video';
+                                colorClass = 'purple-500';
+                                badgeClass = 'badge-secondary';
+                                badgeText = 'Video';
+                                } else if (fileType === 'audio') {
+                                iconClass = 'fa-file-audio';
+                                colorClass = 'yellow-500';
+                                badgeClass = 'badge-warning';
+                                badgeText = 'Audio';
+                                }
+                                %>
+
+                                <div class="item-card file  " data-name="<%= file.originalName %>"
+                                    data-type="<%= fileType %>" data-size="<%= (file.size / 1024).toFixed(2) %>"
+                                    data-date="<%= file.updatedAt ? new Date(file.updatedAt).toISOString().split('T')[0] : '' %>"
+                                    data-file-id="<%= file._id %>"
+                                    data-is-image="<%= fileType === 'image' ? 'true' : 'false' %>"
+                                    onclick="handleFileClick(this)">
+                                    <div
+                                        class="card bg-base-100 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 cursor-pointer border border-base-content/10 group">
+                                        <div class="card-body  p-5">
+
+                                            <div class="flex  items-start justify-around mb-0">
+                                                <div
+                                                    class="p-3 rounded-xl bg-<%= colorClass %>/10 group-hover:bg-<%= colorClass %>/20 transition-all">
+                                                    <i
+                                                        class="fas <%= iconClass %> text-5xl text-<%= colorClass %> group-hover:scale-110 transition-transform card-icon"></i>
+                                                </div>
+                                                <div class="dropdown dropdown-end" onclick="event.stopPropagation()">
+                                                    <label tabindex="0"
+                                                        class="btn btn-ghost btn-sm btn-circle hover:bg-base-200">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                    </label>
+                                                    <ul tabindex="0"
+                                                        class="dropdown-content menu p-2 shadow-xl bg-base-100  rounded-box w-52 border border-base-content/10">
+
+                                                        <% itemActions .filter(a=> a.targets.includes("file"))
+                                                            .forEach(action => { %>
+                                                            <li onclick="handleFileActionsClick(this)">
+                                                                <a class="hover:bg-<%= action.color %>/10"
+                                                                    data-action="<%= action.action %>"
+                                                                    data-id="<%= file._id %>" data-type="file"
+                                                                    data.label "<%= action.label %>">
+                                                                    <i
+                                                                        class="fas <%= action.icon %> mr-2 text-<%= action.color %>"></i>
+                                                                    <%= action.label %>
+                                                                </a>
+                                                            </li>
+                                                            <% }) %>
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            <div class=" ml-4 ">
+
+                                                <h3
+                                                    class="card-title   text-base font-bold mb-2 group-hover:text-<%= colorClass %> transition-colors truncate">
+                                                    <%= file.originalName %>
+                                                </h3>
+                                                <div class="text-sm space-y-1 card-meta">
+                                                    <div class="badge <%= badgeClass %> badge-sm">
+                                                        <%= badgeText %>
+                                                    </div>
+                                                    <p class="text-base-content/70">Size: <%= file.size < 1024 * 1024 ?
+                                                            (file.size / 1024).toFixed(2) + ' KB' : (file.size / (1024 *
+                                                            1024)).toFixed(2) + ' MB' %>
+                                                    </p>
+                                                    <p class="text-base-content/50 text-xs">Modified: <%= file.updatedAt
+                                                            ? new Date(file.updatedAt).toLocaleDateString('en-US', {
+                                                            year: 'numeric' , month: 'short' , day: '2-digit' }) : 'N/A'
+                                                            %>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% }); %>
+                                    <% } %>
+
+                                        <!-- Empty State -->
+                                        <div id="emptyState"
+                                            class="<%= (!files || files.length === 0) && (!folders || folders.length === 0) ? '' : 'hidden' %> col-span-full flex flex-col items-center justify-center py-20">
+                                            <div class="text-center">
+                                                <i class="fas fa-folder-open text-9xl opacity-20 mb-6"></i>
+                                                <h3 class="text-2xl font-bold mb-3">No files or folders found</h3>
+                                                <p class="text-base-content/60 mb-8 max-w-md">Try adjusting your search
+                                                    or upload files to get started</p>
+                                                <button class="btn btn-primary gap-2">
+                                                    <i class="fas fa-upload"></i>
+                                                    Upload Files
+                                                </button>
+                                            </div>
+                                        </div>
+    </div>
+</div>
+
+<!-- Image Preview Modal -->
+<div id="imagePreviewModal" class="fixed border-2 border-black inset-0 z-50 hidden items-center justify-center p-4">
+    <!-- Backdrop with blur -->
+    <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="closeImagePreview()"></div>
+
+    <!-- Modal Content -->
+    <div class="relative z-10 w-full max-w-6xl max-h-[90vh] flex flex-col">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4 px-4">
+            <h3 id="previewFileName" class="text-white text-xl font-bold truncate max-w-md"></h3>
+            <div class="flex gap-3">
+                <button id="downloadBtn" onclick="downloadImage()"
+                    class="btn btn-primary btn-sm gap-2 shadow-lg hover:shadow-xl transition-all">
+                    <i class="fas fa-download"></i>
+                    Download
+                </button>
+                <button onclick="closeImagePreview()"
+                    class="btn btn-circle btn-sm btn-ghost text-white hover:bg-white/10">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Image Container with Loading State -->
+        <div class="bg-base-100/10 rounded-2xl p-4 flex items-center justify-center overflow-hidden min-h-[400px]">
+            <!-- Loading Spinner -->
+            <div id="imageLoader" class="flex flex-col items-center gap-4">
+                <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-white text-lg">Loading image...</p>
+            </div>
+
+            <!-- Image -->
+            <img id="previewImage" src="" alt="Preview"
+                class="hidden max-w-full max-h-[calc(90vh-120px)] object-contain rounded-lg shadow-2xl">
+
+            <!-- Error State -->
+            <div id="imageError" class="hidden flex-col items-center gap-4 text-white">
+                <i class="fas fa-exclamation-triangle text-6xl text-error"></i>
+                <p class="text-lg">Failed to load image</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Details Modal -->
+<div id="detailsModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <!-- Backdrop with blur -->
+    <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="closeDetailsModal()"></div>
+
+    <!-- Modal Content -->
+    <div class="relative z-10 w-full max-w-lg bg-base-100 rounded-2xl shadow-2xl overflow-hidden">
+        <!-- Header -->
+        <div class="flex items-center justify-between p-4 border-b border-base-content/10 bg-base-200">
+            <div class="flex items-center gap-3">
+                <div id="detailsIcon" class="p-2 rounded-xl bg-primary/10">
+                    <i class="fas fa-file text-2xl text-primary"></i>
+                </div>
+                <h3 id="detailsTitle" class="text-xl font-bold truncate max-w-xs">Item Details</h3>
+            </div>
+            <button onclick="closeDetailsModal()" class="btn btn-circle btn-sm btn-ghost hover:bg-base-300">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-6">
+            <div id="detailsContent" class="space-y-4">
+                <!-- Details will be populated here -->
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="flex justify-end gap-3 p-4 border-t border-base-content/10 bg-base-200">
+            <button onclick="closeDetailsModal()" class="btn btn-outline btn-sm">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* ===== LIST VIEW STYLES ===== */
+    #itemsContainer.list-view {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+    }
+
+    #itemsContainer.list-view .item-card {
+        width: 100% !important;
+    }
+
+    #itemsContainer.list-view .card {
+        border-radius: 0.75rem !important;
+    }
+
+    #itemsContainer.list-view .card-body {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        padding: 0.6rem 1rem !important;
+        gap: 0.75rem !important;
+    }
+
+    /* First container (icon + dropdown) - reorder children */
+    #itemsContainer.list-view .card-body>div:first-child {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        margin-bottom: 0 !important;
+        gap: 0 !important;
+        flex: 0 0 auto !important;
+        order: 0 !important;
+    }
+
+    /* Icon wrapper - keep it first */
+    #itemsContainer.list-view .card-body>div:first-child>div:first-child {
+        flex-shrink: 0 !important;
+        margin: 0 !important;
+        padding: 0.35rem !important;
+        order: 0 !important;
+    }
+
+    /* Hide dropdown from first container, we'll show it at end */
+    #itemsContainer.list-view .card-body>div:first-child>.dropdown {
+        position: absolute !important;
+        right: 1rem !important;
+        order: 99 !important;
+    }
+
+    #itemsContainer.list-view .card-icon {
+        font-size: 1.4rem !important;
+    }
+
+    /* Details container */
+    #itemsContainer.list-view .card-body>div:last-child {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        flex: 1 !important;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+        gap: 0 !important;
+        min-width: 0 !important;
+        order: 1 !important;
+    }
+
+    /* Remove ml-4 and ml-6 margins in list view */
+    #itemsContainer.list-view .ml-4,
+    #itemsContainer.list-view .ml-6 {
+        margin-left: 0 !important;
+    }
+
+    /* Card title - proper truncation */
+    #itemsContainer.list-view .card-title {
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+        margin-bottom: 0 !important;
+        margin-right: 1.5rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        text-align: left !important;
+        min-width: 120px !important;
+        max-width: 200px !important;
+        flex-shrink: 1 !important;
+    }
+
+    /* Card meta - row layout */
+    #itemsContainer.list-view .card-meta {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 1rem !important;
+        margin-left: auto !important;
+        flex-shrink: 0 !important;
+        padding-right: 2.5rem !important;
+    }
+
+    #itemsContainer.list-view .card-meta>* {
+        margin: 0 !important;
+        white-space: nowrap !important;
+    }
+
+    /* Remove space-y-1 vertical spacing */
+    #itemsContainer.list-view .space-y-1>*+* {
+        margin-top: 0 !important;
+    }
+
+    #itemsContainer.list-view .card-meta .badge {
+        flex-shrink: 0 !important;
+    }
+
+    /* Card needs relative position for absolute dropdown */
+    #itemsContainer.list-view .card {
+        position: relative !important;
+    }
+
+    /* Remove hover transforms in list view */
+    #itemsContainer.list-view .hover\:-translate-y-2:hover {
+        transform: translateY(0) !important;
+    }
+
+    #itemsContainer.list-view .hover\:scale-105:hover {
+        transform: scale(1) !important;
+    }
+
+    #itemsContainer.list-view .card:hover {
+        background-color: hsl(var(--b2)) !important;
+    }
+
+    /* Fix margins */
+    #itemsContainer.list-view .mb-3,
+    #itemsContainer.list-view .mb-2,
+    #itemsContainer.list-view .mb-0 {
+        margin-bottom: 0 !important;
+    }
+
+    /* Fix justify-around creating gaps */
+    #itemsContainer.list-view .justify-around {
+        justify-content: flex-start !important;
+    }
+
+    /* Modal animations */
+    #imagePreviewModal.show {
+        display: flex !important;
+        animation: fadeIn 0.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    #previewImage {
+        animation: zoomIn 0.3s ease-out;
+    }
+
+    @keyframes zoomIn {
+        from {
+            transform: scale(0.9);
+            opacity: 0;
+        }
+
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* Details Modal animations */
+    #detailsModal.show {
+        display: flex !important;
+        animation: fadeIn 0.2s ease-out;
+    }
+
+    #detailsModal .relative {
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid hsl(var(--bc) / 0.1);
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        font-weight: 500;
+        color: hsl(var(--bc) / 0.7);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .detail-value {
+        font-weight: 600;
+        text-align: right;
+        max-width: 60%;
+        word-break: break-word;
+    }
+</style>
+
+<script>
+    // Store current image data
+    let currentImageData = {
+        fileId: null,
+        fileName: null,
+        signedUrl: null
+    };
+
+    // View Toggle Functionality
+    const gridViewBtn = document.getElementById('gridViewBtn');
+    const listViewBtn = document.getElementById('listViewBtn');
+    const itemsContainer = document.getElementById('itemsContainer');
+
+    gridViewBtn.addEventListener('click', () => {
+        itemsContainer.classList.remove('list-view');
+        gridViewBtn.classList.add('btn-active');
+        listViewBtn.classList.remove('btn-active');
+    });
+
+    listViewBtn.addEventListener('click', () => {
+        itemsContainer.classList.add('list-view');
+        listViewBtn.classList.add('btn-active');
+        gridViewBtn.classList.remove('btn-active');
+    });
+
+    // Search Functionality
+    const searchInput = document.getElementById('searchInput');
+    const emptyState = document.getElementById('emptyState');
+
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const itemCards = document.querySelectorAll('.item-card');
+        let visibleCount = 0;
+
+        itemCards.forEach(card => {
+            const name = card.dataset.name.toLowerCase();
+            if (name.includes(searchTerm)) {
+                card.classList.remove('hidden');
+                visibleCount++;
+            } else {
+                card.classList.add('hidden');
+            }
+        });
+
+        // Show/hide empty state
+        emptyState.classList.toggle('hidden', visibleCount > 0);
+    });
+
+    // Sort Functionality
+    function sortItems(sortBy) {
+        const items = Array.from(itemsContainer.querySelectorAll('.item-card'));
+        const currentSort = document.getElementById('currentSort');
+
+        const sortFunctions = {
+            'name': (a, b) => a.dataset.name.localeCompare(b.dataset.name),
+            'date': (a, b) => new Date(b.dataset.date) - new Date(a.dataset.date),
+            'size': (a, b) => parseFloat(b.dataset.size) - parseFloat(a.dataset.size),
+            'type': (a, b) => a.dataset.type.localeCompare(b.dataset.type)
+        };
+
+        items.sort(sortFunctions[sortBy]);
+        items.forEach(item => itemsContainer.appendChild(item));
+
+        currentSort.textContent = sortBy.charAt(0).toUpperCase() + sortBy.slice(1);
+    }
+
+    // Filter Clear Function
+    function clearFilter() {
+        searchInput.value = '';
+        searchInput.dispatchEvent(new Event('input'));
+        document.getElementById('activeFilter').classList.add('hidden');
+    }
+
+    // Image Preview Functions
+    async function handleFileClick(element) {
+        const isImage = element.dataset.isImage === 'true';
+
+        if (isImage) {
+            const fileId = element.dataset.fileId;
+            const fileName = element.dataset.name;
+            await openImagePreview(fileId, fileName);
+        }
+    }
+
+    async function openImagePreview(fileId, fileName) {
+        const modal = document.getElementById('imagePreviewModal');
+        const previewImage = document.getElementById('previewImage');
+        const previewFileName = document.getElementById('previewFileName');
+        const imageLoader = document.getElementById('imageLoader');
+        const imageError = document.getElementById('imageError');
+
+        // Store current image data
+        currentImageData = {
+            fileId: fileId,
+            fileName: fileName,
+            signedUrl: null
+        };
+
+        // Show modal with loading state
+        previewFileName.textContent = fileName;
+        previewImage.classList.add('hidden');
+        imageError.classList.add('hidden');
+        imageLoader.classList.remove('hidden');
+
+        modal.classList.remove('hidden');
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+
+        try {
+            // Emit event to get signed URL
+            const signedUrl = await getSignedUrl(fileId);
+            currentImageData.signedUrl = signedUrl;
+
+            // Load image
+            previewImage.src = signedUrl;
+
+            // Wait for image to load
+            previewImage.onload = () => {
+                imageLoader.classList.add('hidden');
+                previewImage.classList.remove('hidden');
+            };
+
+            previewImage.onerror = () => {
+                imageLoader.classList.add('hidden');
+                imageError.classList.remove('hidden');
+            };
+
+        } catch (error) {
+            console.error('Error loading image:', error);
+            imageLoader.classList.add('hidden');
+            imageError.classList.remove('hidden');
+        }
+    }
+
+    // Function to get signed URL from server
+    async function getSignedUrl(fileId) {
+        try {
+            const response = await fetch(`<%= baseWebUrl %>/preview?fileId=${fileId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            console.log('response => ', response)
+
+            if (!response.ok) {
+                throw new Error('Failed to get signed URL');
+            }
+
+            const data = await response.json();
+            console.log('data => ', data);
+            return data.data.signedUrl || data.url;
+        } catch (error) {
+            console.error('Error fetching signed URL:', error);
+            throw error;
+        }
+    }
+
+    // Download image function
+    async function downloadImage() {
+        if (!currentImageData.signedUrl || !currentImageData.fileName) {
+            console.error('No image data available');
+            return;
+        }
+
+        try {
+            // Create temporary anchor element to trigger download
+            const link = document.createElement('a');
+            link.href = currentImageData.signedUrl;
+            link.download = currentImageData.fileName;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error('Error downloading image:', error);
+            // Fallback: open in new tab
+            window.open(currentImageData.signedUrl, '_blank');
+        }
+    }
+
+    function closeImagePreview() {
+        const modal = document.getElementById('imagePreviewModal');
+        const previewImage = document.getElementById('previewImage');
+
+        modal.classList.remove('show');
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+
+        // Clear image source
+        previewImage.src = '';
+
+        // Reset current image data
+        currentImageData = {
+            fileId: null,
+            fileName: null,
+            signedUrl: null
+        };
+    }
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeImagePreview();
+        }
+    });
+
+
+    function showDetailsModal(data, type) {
+        const modal = document.getElementById('detailsModal');
+        const detailsIcon = document.getElementById('detailsIcon');
+        const detailsTitle = document.getElementById('detailsTitle');
+        const detailsContent = document.getElementById('detailsContent');
+
+        let iconHtml = '';
+        let title = '';
+        let contentHtml = '';
+
+        if (type === 'file') {
+            const fileData = data.data || data;
+
+            // Determine icon based on mime type
+            const mimeType = fileData.mimeType || '';
+            const fileType = mimeType.split('/')[0];
+            let iconClass = 'fa-file';
+            let colorClass = 'gray-500';
+
+            if (fileType === 'image') {
+                iconClass = 'fa-file-image';
+                colorClass = 'green-500';
+            } else if (mimeType === 'application/pdf') {
+                iconClass = 'fa-file-pdf';
+                colorClass = 'red-500';
+            } else if (fileType === 'video') {
+                iconClass = 'fa-file-video';
+                colorClass = 'purple-500';
+            } else if (fileType === 'audio') {
+                iconClass = 'fa-file-audio';
+                colorClass = 'yellow-500';
+            }
+
+            iconHtml = `<i class="fas ${iconClass} text-2xl text-${colorClass}"></i>`;
+            title = fileData.originalName || 'File Details';
+
+            // Format size
+            const sizeInKB = fileData.size / 1024;
+            const formattedSize = sizeInKB >= 1024
+                ? (sizeInKB / 1024).toFixed(2) + ' MB'
+                : sizeInKB.toFixed(2) + ' KB';
+
+            // Determine location
+            const location = fileData.folderId ? 'Subfolder' : 'Root';
+
+            contentHtml = `
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-file-alt text-primary"></i>
+                        Name
+                    </span>
+                    <span class="detail-value">${fileData.originalName || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-tag text-info"></i>
+                        Type
+                    </span>
+                    <span class="detail-value">
+                        <span class="badge badge-primary badge-sm">${fileData.mimeType || 'Unknown'}</span>
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-weight text-warning"></i>
+                        Size
+                    </span>
+                    <span class="detail-value">${formattedSize}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-folder text-secondary"></i>
+                        Location
+                    </span>
+                    <span class="detail-value">
+                        <span class="badge badge-outline badge-sm">${location}</span>
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-globe text-accent"></i>
+                        Visibility
+                    </span>
+                    <span class="detail-value">
+                        <span class="badge ${fileData.isPublic ? 'badge-success' : 'badge-neutral'} badge-sm">
+                            ${fileData.isPublic ? 'Public' : 'Private'}
+                        </span>
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-download text-success"></i>
+                        Downloads
+                    </span>
+                    <span class="detail-value">
+                        <span class="badge badge-info badge-sm">${fileData.downloadCount || 0}</span>
+                    </span>
+                </div>
+            `;
+        } else if (type === 'folder') {
+            const folderInfo = data.data || data;
+            const folderData = folderInfo.folderData || folderInfo;
+
+            iconHtml = `<i class="fas fa-folder text-2xl text-blue-500"></i>`;
+            title = folderData.name || 'Folder Details';
+
+            // Format size
+            const sizeInKB = (folderData.size || 0) / 1024;
+            const formattedSize = sizeInKB >= 1024
+                ? (sizeInKB / 1024).toFixed(2) + ' MB'
+                : sizeInKB.toFixed(2) + ' KB';
+
+            // Determine location
+            const location = folderData.parentId ? 'Subfolder' : 'Root';
+
+            contentHtml = `
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-folder text-primary"></i>
+                        Name
+                    </span>
+                    <span class="detail-value">${folderData.name || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-route text-info"></i>
+                        Path
+                    </span>
+                    <span class="detail-value">${folderData.path || '/'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-folder-open text-warning"></i>
+                        Total Folders
+                    </span>
+                    <span class="detail-value">
+                        <span class="badge badge-secondary badge-sm">${folderInfo.totalFolder || 0}</span>
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-file text-success"></i>
+                        Total Files
+                    </span>
+                    <span class="detail-value">
+                        <span class="badge badge-accent badge-sm">${folderInfo.totalFiles || 0}</span>
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-weight text-error"></i>
+                        Size
+                    </span>
+                    <span class="detail-value">${formattedSize}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-sitemap text-secondary"></i>
+                        Location
+                    </span>
+                    <span class="detail-value">
+                        <span class="badge badge-outline badge-sm">${location}</span>
+                    </span>
+                </div>
+            `;
+        }
+
+        detailsIcon.innerHTML = iconHtml;
+        detailsTitle.textContent = title;
+        detailsContent.innerHTML = contentHtml;
+
+        modal.classList.remove('hidden');
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDetailsModal() {
+        const modal = document.getElementById('detailsModal');
+        modal.classList.remove('show');
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    // handle action Items 
+    async function handleFileActionsClick(element) {
+        const anchor = element.querySelector('a');
+
+        if (anchor) {
+            const action = anchor.dataset.action;
+            const fileId = anchor.dataset.id;
+            const fileType = anchor.dataset.type;
+
+            switch (action) {
+                case 'downloadFile':
+
+                    break;
+                case 'renameItem':
+                    break;
+                case 'shareItem':
+                    break;
+                case 'showDetails':
+                    if (fileType == "file") {
+                        const files = {
+                            "fileType": "file",
+                            "Items": fileId
+                        }
+                        toaster.info(` Files id ${fileId}`, 'Geting Details of Files');
+                        const success = await handleDetailsItems(files);
+
+                        if (success) {
+                            console.log('sucess => ', success)
+                            showDetailsModal(success, 'file');
+                        }
+                    }
+                    else if (fileType == "folder") {
+                        const files = {
+                            "fileType": "folder",
+                            "Items": fileId
+                        }
+                        toaster.info(` Files id ${fileId}`, 'Geting Details of Folder');
+                        const success = await handleDetailsItems(files);
+
+                        if (success) {
+                            console.log('sucess => ', success)
+                            showDetailsModal(success, 'folder');
+                        }
+                    }
+
+                    break;
+                case 'deleteItem':
+                    if (fileType == "file") {
+                        const files = {
+                            "files": [fileId]
+                        }
+                        toaster.info(` Files id ${fileId}`, 'Deleting Files');
+                        const success = await handleDeleteItems(files);
+
+                        if (success) {
+                            // Find and remove the file card from DOM 
+                            const fileCard = element.closest('.item-card');
+
+                            const fileSize = parseFloat(fileCard.dataset.size) || 0;
+
+                            fileCard.remove();
+
+                            // Update the Total Files stat
+                            updateFilesCount(-1);
+
+                            // Update storage used stat (subtract file size in KB)
+                            updateStorageUsed(-fileSize);
+                            fileCard.remove();
+
+
+                            // Check if container is empty and show empty state
+                            const remainingItems = document.querySelectorAll('.item-card');
+                            if (remainingItems.length === 0) {
+                                document.getElementById('emptyState').classList.remove('hidden');
+                            }
+                        }
+
+                    }
+                    else if (fileType == "folder") {
+                        const files = {
+                            "folders": [fileId]
+                        }
+                        toaster.info(` Folder  id ${fileId}`, 'Deleting Files');
+                        const success = await handleDeleteItems(files);
+
+                        if (success) {
+                            // Find and remove the file card from DOM 
+                            const fileCard = element.closest('.item-card');
+
+                            const fileSize = parseFloat(fileCard.dataset.size) || 0;
+
+                            fileCard.remove();
+
+                            // Update the Total Files stat
+                            updateFoldersCount(-1);
+
+                            // Update storage used stat (subtract file size in KB)
+                            updateStorageUsed(-fileSize);
+                            fileCard.remove();
+
+
+                            // Check if container is empty and show empty state
+                            const remainingItems = document.querySelectorAll('.item-card');
+                            if (remainingItems.length === 0) {
+                                document.getElementById('emptyState').classList.remove('hidden');
+                            }
+                        }
+                    }
+
+                    break;
+
+
+            }
+
+        }
+    }
+
+    async function handleDetailsItems(Items) {
+        try {
+            const csrfToken = document
+                .querySelector('meta[name="csrf-token"]')
+                .getAttribute('content');
+
+            const params = new URLSearchParams({
+                fileType: Items.fileType,
+                itemId: Items.Items
+            });
+
+            const response = await fetch(`<%= baseWebUrl %>/Items?${params.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    "CSRF-Token": csrfToken
+                }
+
+            });
+
+            if (!response.ok) {
+                toaster.error(` Failed to Details Files`, 'Failed To Get Details');
+                throw new Error('Failed to get handleDetailsItems URL');
+            }
+
+            const data = await response.json();
+            toaster.success(` Sucessfully To Get Details `, ' Get Details');
+            return data;
+
+        } catch (error) {
+            console.error('Error handleDetailsItems:', error);
+            throw error;
+        }
+    }
+
+
+    async function handleDeleteItems(Items) {
+        try {
+            const csrfToken = document
+                .querySelector('meta[name="csrf-token"]')
+                .getAttribute('content');
+
+            const response = await fetch(`<%= baseWebUrl %>/Items`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    "CSRF-Token": csrfToken
+                },
+                body: JSON.stringify(Items)
+            });
+
+
+            if (!response.ok) {
+                toaster.error(` Failed to Delete Files`, 'Failed To Delete');
+                throw new Error('Failed to get handleDeleteItems URL');
+            }
+
+            const data = await response.json();
+            toaster.success(` Sucessfully To Delete`, 'Sucessfully Delete');
+            return true;
+
+        } catch (error) {
+            console.error('Error handleDeleteItems:', error);
+            throw error;
+        }
+    }
+
+
+
+    function updateFilesCount(change) {
+        const statsElements = document.querySelectorAll('.stat-value');
+        const statTitles = document.querySelectorAll('.stat-title');
+
+        statTitles.forEach((title, index) => {
+            if (title.textContent.trim().toLowerCase().includes('file')) {
+                const valueElement = statsElements[index];
+                if (valueElement) {
+                    const currentValue = parseInt(valueElement.textContent) || 0;
+                    const newValue = Math.max(0, currentValue + change);
+                    valueElement.textContent = newValue;
+                }
+            }
+        });
+    }
+
+    // Function to update storage used in stats
+    function updateStorageUsed(changeInKB) {
+        const statsElements = document.querySelectorAll('.stat-value');
+        const statTitles = document.querySelectorAll('.stat-title');
+
+        statTitles.forEach((title, index) => {
+            if (title.textContent.trim().toLowerCase().includes('storage')) {
+                const valueElement = statsElements[index];
+                if (valueElement) {
+                    // Parse current value (could be KB, MB, or GB)
+                    const text = valueElement.textContent.trim();
+                    let currentValueKB = 0;
+
+                    if (text.includes('GB')) {
+                        currentValueKB = parseFloat(text) * 1024 * 1024;
+                    } else if (text.includes('MB')) {
+                        currentValueKB = parseFloat(text) * 1024;
+                    } else {
+                        currentValueKB = parseFloat(text) || 0;
+                    }
+
+                    const newValueKB = Math.max(0, currentValueKB + changeInKB);
+
+                    // Format output
+                    if (newValueKB >= 1024 * 1024) {
+                        valueElement.textContent = (newValueKB / (1024 * 1024)).toFixed(2) + ' GB';
+                    } else if (newValueKB >= 1024) {
+                        valueElement.textContent = (newValueKB / 1024).toFixed(2) + ' MB';
+                    } else {
+                        valueElement.textContent = newValueKB.toFixed(2) + ' KB';
+                    }
+                }
+            }
+        });
+    }
+
+
+    function updateFilesCount(change) {
+        const statsElements = document.querySelectorAll('.stat-value');
+        const statTitles = document.querySelectorAll('.stat-title');
+
+        statTitles.forEach((title, index) => {
+            const titleText = title.textContent.trim().toLowerCase();
+            // Match "files" but not "folders"
+            if (titleText.includes('file') && !titleText.includes('folder')) {
+                const valueElement = statsElements[index];
+                if (valueElement) {
+                    const currentValue = parseInt(valueElement.textContent) || 0;
+                    const newValue = Math.max(0, currentValue + change);
+                    valueElement.textContent = newValue;
+                }
+            }
+        });
+    }
+
+    // Function to update folders count in stats
+    function updateFoldersCount(change) {
+        const statsElements = document.querySelectorAll('.stat-value');
+        const statTitles = document.querySelectorAll('.stat-title');
+
+        statTitles.forEach((title, index) => {
+            const titleText = title.textContent.trim().toLowerCase();
+            if (titleText.includes('folder')) {
+                const valueElement = statsElements[index];
+                if (valueElement) {
+                    const currentValue = parseInt(valueElement.textContent) || 0;
+                    const newValue = Math.max(0, currentValue + change);
+                    valueElement.textContent = newValue;
+                }
+            }
+        });
+    }
+
+
+
+</script>

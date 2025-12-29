@@ -3,26 +3,46 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![Node](https://img.shields.io/badge/node-%3E%3D14.0.0-brightgreen.svg)
-![License](https://img.shields.io/badge/license-ISC-green.svg)
 
-**A enterprise-grade, secure cloud storage backend with AWS S3 integration, JWT authentication, role-based access control, and collaborative file sharing.**
+**An enterprise-grade, secure cloud storage platform with AWS S3 integration, modern web interface, JWT authentication, role-based access control, and collaborative file sharing.**
 
-[Features](#-features) • [Installation](#-installation) • [API Documentation](#-api-endpoints) • [Architecture](#-architecture)
+[Features](#-features) • [Quick Start](#-quick-start) • [Installation](#-installation) • [API Documentation](#-api-endpoints) • [Web Interface](#-web-interface)
 
 </div>
 
 ---
 
+## 🚀 Quick Start
+
+```bash
+# Clone the repository
+git clone <your-repository-url>
+cd 02_SurakshyaCloud
+
+# Install dependencies
+npm install
+
+# Configure environment (copy and edit .env file)
+# See Configuration section for required variables
+
+# Start development server
+npm start
+
+# Open http://localhost:3000 in your browser
+```
+
+---
+
 ## 📋 Table of Contents
 
+- [Quick Start](#-quick-start)
 - [Overview](#-overview)
 - [Features](#-features)
 - [Tech Stack](#-tech-stack)
 - [Architecture](#-architecture)
 - [Installation](#-installation)
 - [Configuration](#-configuration)
+- [Web Interface](#-web-interface)
 - [API Endpoints](#-api-endpoints)
 - [Project Structure](#-project-structure)
 - [Security](#-security)
@@ -33,17 +53,18 @@
 
 ## 🌟 Overview
 
-**SurakshyaCloud** is a production-ready, scalable cloud storage backend service built with Node.js and Express. It provides secure file and folder management capabilities with AWS S3 integration, CloudFront CDN for content delivery, comprehensive authentication and authorization mechanisms, and advanced sharing features for collaboration.
+**SurakshyaCloud** is a production-ready, full-stack cloud storage platform built with Node.js and Express. It features a modern web interface powered by EJS, Tailwind CSS, and DaisyUI alongside a comprehensive RESTful API. The platform provides secure file and folder management with AWS S3 integration, CloudFront CDN for content delivery, robust authentication mechanisms, and advanced sharing features for collaboration.
 
 ### Key Highlights
 
-- 🔐 **Enterprise Security**: JWT-based authentication with refresh tokens and role-based access control
-- ☁️ **AWS Integration**: S3 for storage, CloudFront for CDN with signed URLs
-- 📁 **Hierarchical Storage**: Folder structure with file organization capabilities
-- � **Collaborative Sharing**: Public share links and private access control for files/folders
-- �🚀 **Scalable Architecture**: Clean separation of concerns with Repository-Service-Controller pattern
+- 🖥️ **Modern Web Interface**: Responsive UI built with EJS, Tailwind CSS 4.x, and DaisyUI
+- 🔐 **Enterprise Security**: JWT-based authentication with refresh tokens, CSRF protection, and role-based access control
+- ☁️ **AWS Integration**: S3 for object storage, CloudFront CDN with signed URLs
+- 📁 **Hierarchical Storage**: Intuitive folder structure with drag-and-drop file organization
+- 🤝 **Collaborative Sharing**: Public share links and private access control for files/folders
+- 🚀 **Scalable Architecture**: Clean separation of concerns with Repository-Service-Controller pattern
 - 📊 **Storage Management**: Track user storage quotas and file metadata
-- 🔄 **File Operations**: Upload, download, rename, move, and delete with atomic operations
+- 🔄 **Bulk Operations**: Multi-file upload, bulk delete, and bulk move with atomic operations
 
 ---
 
@@ -56,6 +77,16 @@
 - ✅ Role-based access control (USER/ADMIN)
 - ✅ Secure password hashing with bcrypt (10 rounds)
 - ✅ Token verification middleware
+- ✅ CSRF protection for web forms
+
+### Web Interface
+- ✅ Modern responsive dashboard (Tailwind CSS + DaisyUI)
+- ✅ User authentication pages (Login/Register)
+- ✅ Admin dashboard for system management
+- ✅ File/Folder browser with preview capabilities
+- ✅ Drag-and-drop file upload interface
+- ✅ Real-time loading indicators and toast notifications
+- ✅ EJS templating with reusable layouts and partials
 
 ### File Management
 - ✅ Multi-file upload with multer
@@ -107,6 +138,14 @@
 | **MongoDB** | 7.0.0 | NoSQL database |
 | **Mongoose** | 9.0.2 | MongoDB ODM |
 
+### Frontend & UI
+| Technology | Version | Purpose |
+|-----------|---------|---------|
+| **EJS** | 3.1.10 | Templating engine |
+| **Tailwind CSS** | 4.1.18 | Utility-first CSS framework |
+| **DaisyUI** | 5.5.14 | Tailwind CSS component library |
+| **express-ejs-layouts** | 2.5.1 | Layout support for EJS |
+
 ### AWS Services
 | Service | Purpose |
 |---------|---------|
@@ -120,6 +159,7 @@
 | **bcrypt** | 6.0.0 - Password hashing |
 | **jsonwebtoken** | 9.0.2 - JWT authentication |
 | **cookie-parser** | 1.4.7 - Cookie handling |
+| **csurf** | 1.11.0 - CSRF protection |
 
 ### File Handling
 | Package | Purpose |
@@ -132,63 +172,67 @@
 |---------|---------|
 | **nodemon** | 3.1.11 - Auto-restart dev server |
 | **dotenv** | 17.2.3 - Environment configuration |
+| **axios** | 1.13.2 - HTTP client for API calls |
 
 ---
 
 ## 🏗️ Architecture
 
-SurakshyaCloud follows a **layered architecture** pattern for separation of concerns and maintainability:
+SurakshyaCloud follows a **layered architecture** pattern with a full-stack design:
 
 ```
-┌─────────────────────────────────────────────────┐
-│              Client Application                 │
-└──────────────────┬──────────────────────────────┘
-                   │
-                   ▼
-┌─────────────────────────────────────────────────┐
-│          Express Route Handlers                 │
-│           (src/Routes/routes/)                  │
-└──────────────────┬──────────────────────────────┘
-                   │
-                   ▼
-┌─────────────────────────────────────────────────┐
-│              Middlewares                        │
-│  (Authentication, Validation, Error Handler)    │
-└──────────────────┬──────────────────────────────┘
-                   │
-                   ▼
-┌─────────────────────────────────────────────────┐
-│              Controllers                        │
-│      (Request/Response Handling Layer)          │
-└──────────────────┬──────────────────────────────┘
-                   │
-                   ▼
-┌─────────────────────────────────────────────────┐
-│               Services                          │
-│         (Business Logic Layer)                  │
-└──────────────────┬──────────────────────────────┘
-                   │
-        ┌──────────┴──────────┐
-        ▼                     ▼
-┌──────────────┐      ┌──────────────┐
-│ Repository   │      │  AWS S3      │
-│   (DB ORM)   │      │  Service     │
-└──────┬───────┘      └──────────────┘
-       │
-       ▼
-┌──────────────────────┐
-│   MongoDB Database   │
-└──────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                    Web Browser / Client                         │
+└──────────────────┬────────────────────────────┬─────────────────┘
+                   │                            │
+        ┌──────────▼──────────┐      ┌──────────▼──────────┐
+        │    Web Interface    │      │     REST API        │
+        │  (EJS + Tailwind)   │      │   (/api/v1/...)     │
+        │   web/routes/       │      │  src/Routes/        │
+        └──────────┬──────────┘      └──────────┬──────────┘
+                   │                            │
+                   └────────────┬───────────────┘
+                                │
+                   ┌────────────▼────────────┐
+                   │      Middlewares        │
+                   │  (Auth, CSRF, Validation)│
+                   └────────────┬────────────┘
+                                │
+                   ┌────────────▼────────────┐
+                   │      Controllers        │
+                   │  (Request/Response)     │
+                   └────────────┬────────────┘
+                                │
+                   ┌────────────▼────────────┐
+                   │       Services          │
+                   │   (Business Logic)      │
+                   └────────────┬────────────┘
+                                │
+              ┌─────────────────┼─────────────────┐
+              ▼                 ▼                 ▼
+     ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+     │  Repository  │  │  AWS S3      │  │  CloudFront  │
+     │   (MongoDB)  │  │  Service     │  │    CDN       │
+     └──────┬───────┘  └──────────────┘  └──────────────┘
+            │
+     ┌──────▼───────┐
+     │   MongoDB    │
+     │   Database   │
+     └──────────────┘
 ```
 
 ### Layer Responsibilities
 
-1. **Routes**: Define API endpoints and map to controllers
-2. **Middlewares**: Handle authentication, validation, and cross-cutting concerns
-3. **Controllers**: Process HTTP requests/responses, call services
-4. **Services**: Implement business logic, orchestrate operations
-5. **Repository**: Data access layer, interact with database
-6. **Models**: Define data schemas and validation rules
+| Layer | Directory | Responsibility |
+|-------|-----------|----------------|
+| **Web Routes** | `web/routes/` | Render EJS templates, handle form submissions |
+| **API Routes** | `src/Routes/` | Define RESTful API endpoints |
+| **Web Controllers** | `web/controllers/` | Handle web page requests and views |
+| **API Controllers** | `src/controllers/` | Process API requests/responses |
+| **Middlewares** | `src/middlewares/`, `web/middlewares/` | Auth, CSRF, validation |
+| **Services** | `src/services/` | Business logic and orchestration |
+| **Repository** | `src/repository/` | Database operations (Mongoose ODM) |
+| **Models** | `src/models/` | Mongoose schemas and validation |
 
 ---
 
@@ -256,16 +300,23 @@ Ensure you have the following installed:
 
 6. **Start the application**
    ```bash
-   # Development mode with auto-reload
+   # Development mode with auto-reload + Tailwind CSS watch
    npm start
+   
+   # Build CSS only (for production)
+   npm run build:css
    
    # The server will start on http://localhost:3000
    ```
 
 7. **Verify installation**
    ```bash
+   # Test API endpoint
    curl http://localhost:3000/api/v1/check
    # Expected response: {"message": " Surakshya@ is good to GO"}
+   
+   # Test Web Interface
+   # Open http://localhost:3000 in your browser
    ```
 
 ---
@@ -336,91 +387,184 @@ Ensure you have the following installed:
 ```
 02_SurakshyaCloud/
 │
-├── Documentation/                    # Project documentation files
+├── package.json                     # Node.js dependencies & scripts
+├── tailwind.config.js               # Tailwind CSS configuration
+├── postcss.config.js                # PostCSS configuration
+├── README.md                        # This documentation
+│
+├── Documentation/                   # Project documentation files
 │   ├── Suraksha Cloud – Project Documentation (revised).docx
 │   └── Suraksha Cloud – Project Documentation (revised).pdf
 │
-├── src/                             # Source code directory
-│   ├── index.js                     # Application entry point
-│   │
+├── src/                             # Backend API source code
 │   ├── config/                      # Configuration files
-│   │   ├── awsConfig.js            # AWS S3 & CloudFront configuration
-│   │   ├── database.js             # MongoDB connection setup
-│   │   └── serverConfig.js         # Server and environment variables
+│   │   ├── awsConfig.js            # AWS S3 & CloudFront setup
+│   │   ├── database.js             # MongoDB connection
+│   │   └── serverConfig.js         # Environment variables
 │   │
-│   ├── controllers/                 # Request handlers (Controllers)
+│   ├── controllers/                 # API request handlers
 │   │   ├── index.js                # Controller exports
-│   │   ├── file.controller.js      # File operations controller
-│   │   ├── folder.controller.js    # Folder operations controller
-│   │   ├── items.controller.js     # Bulk items operations controller
-│   │   ├── share.controller.js     # Share & access management controller
-│   │   └── user.controller.js      # User & auth controller
+│   │   ├── file.controller.js      # File operations
+│   │   ├── folder.controller.js    # Folder operations
+│   │   ├── items.controller.js     # Bulk operations
+│   │   ├── share.controller.js     # Sharing & access
+│   │   └── user.controller.js      # Authentication
 │   │
 │   ├── middlewares/                 # Express middlewares
 │   │   ├── index.js                # Middleware exports
-│   │   └── user.middlewares.js     # Auth & validation middlewares
+│   │   └── user.middlewares.js     # Auth & validation
 │   │
-│   ├── models/                      # Mongoose data models
-│   │   ├── file.js                 # File schema & model
-│   │   ├── folder.js               # Folder schema & model
-│   │   ├── share.js                # Public share links schema & model
-│   │   ├── access.js               # Private access control schema & model
-│   │   └── users.js                # User schema & model
+│   ├── models/                      # Mongoose schemas
+│   │   ├── access.js               # Private access control
+│   │   ├── file.js                 # File schema
+│   │   ├── folder.js               # Folder schema
+│   │   ├── share.js                # Public share links
+│   │   └── users.js                # User schema
 │   │
 │   ├── repository/                  # Data access layer
 │   │   ├── index.js                # Repository exports
-│   │   ├── curdRepo.js             # Generic CRUD operations
-│   │   ├── file.repo.js            # File-specific DB operations
-│   │   ├── folder.repo.js          # Folder-specific DB operations
-│   │   ├── share.repo.js           # Share links DB operations
-│   │   ├── access.repo.js          # Access control DB operations
-│   │   └── user.repo.js            # User-specific DB operations
+│   │   ├── curdRepo.js             # Generic CRUD
+│   │   ├── access.repo.js          # Access operations
+│   │   ├── file.repo.js            # File operations
+│   │   ├── folder.repo.js          # Folder operations
+│   │   ├── share.repo.js           # Share operations
+│   │   └── user.repo.js            # User operations
 │   │
 │   ├── services/                    # Business logic layer
 │   │   ├── index.js                # Service exports
 │   │   ├── curdService.js          # Generic CRUD service
+│   │   ├── access.service.js       # Access control logic
 │   │   ├── file.service.js         # File business logic
 │   │   ├── folder.service.js       # Folder business logic
 │   │   ├── items.service.js        # Bulk operations logic
-│   │   ├── s3.service.js           # AWS S3 operations service
-│   │   ├── share.service.js        # Public share links business logic
-│   │   ├── access.service.js       # Private access control business logic
-│   │   └── user.service.js         # User & auth service
+│   │   ├── s3.service.js           # AWS S3 operations
+│   │   ├── share.service.js        # Sharing logic
+│   │   └── user.service.js         # Auth & user logic
 │   │
 │   ├── Routes/                      # API route definitions
 │   │   ├── index.js                # Main router
 │   │   └── routes/
 │   │       └── index.js            # API v1 routes
 │   │
-│   └── utlis/                       # Utility functions & helpers
+│   └── utlis/                       # Utility functions
 │       ├── index.js                # Utility exports
-│       ├── awsHelper.js            # AWS helper functions
-│       ├── bcryptHelper.js         # Password hashing utilities
-│       ├── cryptoHelper.js         # Crypto utilities (token generation)
-│       ├── jwtHelper.js            # JWT token utilities
-│       ├── multerHelper.js         # File upload configuration
+│       ├── awsHelper.js            # AWS helpers
+│       ├── bcryptHelper.js         # Password utilities
+│       ├── cryptoHelper.js         # Token generation
+│       ├── jwtHelper.js            # JWT utilities
+│       ├── multerHelper.js         # File upload config
 │       └── Errors/
-│           └── https_codes.js      # HTTP status code constants
+│           └── https_codes.js      # HTTP status codes
 │
-├── .env                             # Environment variables (not in repo)
-├── .gitignore                       # Git ignore file
-├── package.json                     # Node.js dependencies & scripts
-├── package-lock.json                # Dependency lock file
-└── README.md                        # This file
+└── web/                             # Web frontend application
+    ├── index.js                     # Web server entry point
+    ├── tailwind.config.js           # Tailwind config (web)
+    ├── postcss.config.js            # PostCSS config (web)
+    │
+    ├── config/
+    │   └── webserverConfig.js       # Web server configuration
+    │
+    ├── controllers/
+    │   └── web.controller.js        # Web page controllers
+    │
+    ├── JsonData/                    # Static UI configuration data
+    │   ├── index.js                 # Data exports
+    │   ├── dashboard.data.js        # Dashboard config
+    │   ├── file.config.data.js      # File type configs
+    │   ├── home.data.js             # Homepage content
+    │   └── itemsAction.data.js      # Item action menus
+    │
+    ├── middlewares/
+    │   ├── index.js                 # Middleware exports
+    │   ├── auth.middleware.js       # Auth guards
+    │   └── globalState.middleware.js # Global state
+    │
+    ├── public/                      # Static assets
+    │   ├── output.css               # Compiled Tailwind CSS
+    │   └── assets/                  # Images, icons, etc.
+    │
+    ├── routes/
+    │   └── web.routes.js            # Web page routes
+    │
+    ├── services/
+    │   └── webapi.service.js        # API client service
+    │
+    ├── utils/
+    │   ├── crsf.helper.js           # CSRF utilities
+    │   ├── fileUI.helper.js         # File UI helpers
+    │   └── pathUtlis.js             # Path utilities
+    │
+    └── views/                       # EJS templates
+        ├── home.ejs                 # Landing page
+        ├── login.ejs                # Login page
+        ├── register.ejs             # Registration page
+        ├── userDashboard.ejs        # User dashboard
+        ├── adminDashboard.ejs       # Admin dashboard
+        ├── 404_page.ejs             # Error page
+        ├── input.css                # Tailwind input CSS
+        │
+        ├── layouts/
+        │   └── main.ejs             # Main layout template
+        │
+        └── partials/
+            ├── header.ejs           # Header component
+            ├── footer.ejs           # Footer component
+            ├── loader.ejs           # Loading spinner
+            └── toaster.ejs          # Toast notifications
 ```
 
-### Directory Descriptions
+### Directory Overview
 
 | Directory | Purpose |
 |-----------|---------|
-| `config/` | Application configuration including AWS, database, and server settings |
-| `controllers/` | Handle HTTP requests, validate input, call services, format responses |
-| `middlewares/` | Authentication, authorization, validation, error handling |
-| `models/` | Mongoose schemas defining database structure and validation |
-| `repository/` | Database operations and queries (data access abstraction) |
-| `services/` | Business logic, orchestration between repositories and external services |
-| `Routes/` | API endpoint definitions and routing configuration |
-| `utlis/` | Helper functions, utilities, and common code |
+| `src/` | Backend API with business logic, data access, and AWS integration |
+| `src/config/` | Application configuration (AWS, database, server settings) |
+| `src/controllers/` | API request handlers - process HTTP requests/responses |
+| `src/middlewares/` | Authentication, authorization, and validation logic |
+| `src/models/` | Mongoose schemas defining database structure |
+| `src/repository/` | Database operations (data access abstraction) |
+| `src/services/` | Business logic and orchestration layer |
+| `src/Routes/` | API endpoint definitions |
+| `src/utlis/` | Helper functions and utilities |
+| `web/` | Frontend web application (EJS + Tailwind CSS + DaisyUI) |
+| `web/views/` | EJS templates for pages and layouts |
+| `web/public/` | Static assets (CSS, images, JavaScript) |
+| `web/controllers/` | Web page controllers for rendering views |
+| `Documentation/` | Project documentation files |
+
+---
+
+## 🖥️ Web Interface
+
+SurakshyaCloud includes a modern, responsive web interface built with EJS templates and styled with Tailwind CSS and DaisyUI.
+
+### Available Pages
+
+| Route | Page | Description |
+|-------|------|-------------|
+| `/` | Home | Landing page with feature overview |
+| `/login` | Login | User authentication page |
+| `/register` | Register | New user registration |
+| `/dashboard` | Dashboard | File manager (requires auth) |
+| `/preview` | Preview | File preview page (requires auth) |
+| `/Items` | Items | Item details (requires auth) |
+
+### Web Features
+- 🎨 **Modern UI**: Clean design with DaisyUI components
+- 📱 **Responsive**: Works on desktop, tablet, and mobile
+- 🔒 **CSRF Protection**: All forms protected against CSRF attacks
+- ⏳ **Loading States**: Visual feedback during async operations
+- 📢 **Toast Notifications**: User feedback for actions
+- 🔐 **Protected Routes**: Auth guards for sensitive pages
+
+### Running the Web Application
+```bash
+# Start server with Tailwind CSS watcher
+npm start
+
+# Access the web interface
+# Open http://localhost:3000 in your browser
+```
 
 ---
 
@@ -441,6 +585,7 @@ Ensure you have the following installed:
 - ✅ **Signed URLs**: CloudFront signed URLs for time-limited file access
 - ✅ **Role-Based Access**: USER/ADMIN role enforcement
 - ✅ **Cookie Security**: HTTP-only cookies for token storage
+- ✅ **CSRF Protection**: Token-based protection for all web forms
 - ✅ **Environment Variables**: Sensitive credentials in `.env` file
 - ✅ **Input Validation**: Request validation in middlewares
 - ✅ **Error Handling**: Centralized error handling without data leakage
@@ -550,7 +695,7 @@ Cookie: accessToken=<jwt-token>
 
 #### 1. Upload File(s)
 ```http
-POST /user/files
+POST /files
 ```
 **Headers:**
 ```
@@ -582,7 +727,7 @@ folderId: <optional-folder-id>
 
 #### 2. View/Download File
 ```http
-GET /user/file/:fileId
+GET /file/:fileId
 ```
 **Headers:**
 ```
@@ -598,6 +743,7 @@ Cookie: accessToken=<jwt-token>
     "expiresIn": 300
   },
   "err": {}
+}
 }
 ```
 
@@ -627,23 +773,12 @@ GET /file/:fileId/details
 
 #### 4. Rename File
 ```http
-PATCH /user/file/:fileId/rename
+PATCH /file/:fileId/rename
 ```
 **Request Body:**
 ```json
 {
   "newName": "updated-document.pdf"
-}
-```
-
-#### 5. Move File
-```http
-PATCH /user/file/:fileId/move
-```
-**Request Body:**
-```json
-{
-  "targetFolderId": "507f1f77bcf86cd799439013"
 }
 ```
 
@@ -653,7 +788,7 @@ PATCH /user/file/:fileId/move
 
 #### 1. Create Folder
 ```http
-POST /user/folders
+POST /folders
 ```
 **Request Body:**
 ```json
@@ -680,17 +815,6 @@ GET /folders/:folderId
 GET /folders/:folderId/details
 ```
 **Response:** Folder metadata and statistics
-
-#### 5. Move Folder
-```http
-PATCH /folders/:folderId/move
-```
-**Request Body:**
-```json
-{
-  "targetParentId": "507f1f77bcf86cd799439014"
-}
-```
 
 ---
 
@@ -875,19 +999,33 @@ Cookie: accessToken=<jwt-token>
 
 ## 👨‍💻 Development
 
+### NPM Scripts
+
+| Script | Command | Description |
+|--------|---------|-------------|
+| `start` | `npm start` | Start server with nodemon + Tailwind CSS watcher |
+| `build:css` | `npm run build:css` | Build Tailwind CSS for production |
+| `tailwind` | `npm run tailwind` | Watch and compile Tailwind CSS |
+
 ### Development Workflow
 
 1. **Start development server with auto-reload:**
    ```bash
    npm start
    ```
+   This runs both the Express server with nodemon AND the Tailwind CSS watcher concurrently.
 
-2. **Run in production mode:**
+2. **Build CSS for production:**
    ```bash
-   NODE_ENV=production node src/index.js
+   npm run build:css
    ```
 
-3. **Check code for issues:**
+3. **Run in production mode:**
+   ```bash
+   NODE_ENV=production node web/index.js
+   ```
+
+4. **Check code for issues:**
    ```bash
    npm audit
    npm audit fix
@@ -899,6 +1037,15 @@ Cookie: accessToken=<jwt-token>
 ```bash
 mongosh mongodb://localhost:27017/surakshya_cloud
 ```
+
+### Project Entry Point
+
+The application entry point is `web/index.js`, which:
+- Sets up Express with EJS templating
+- Configures middlewares (auth, CSRF, body parser)
+- Mounts API routes at `/api/v1`
+- Mounts web routes at `/`
+- Connects to MongoDB on startup
 
 
 ---
@@ -932,10 +1079,14 @@ This project is licensed under the **ISC License**.
 
 ## 🙏 Acknowledgments
 
-- Built with [Express.js](https://expressjs.com/)
-- Database by [MongoDB](https://www.mongodb.com/)
-- Storage by [AWS S3](https://aws.amazon.com/s3/)
-- CDN by [AWS CloudFront](https://aws.amazon.com/cloudfront/)
+- Built with [Express.js](https://expressjs.com/) - Fast, unopinionated web framework
+- Database by [MongoDB](https://www.mongodb.com/) - NoSQL document database
+- ODM by [Mongoose](https://mongoosejs.com/) - Elegant MongoDB object modeling
+- Storage by [AWS S3](https://aws.amazon.com/s3/) - Scalable object storage
+- CDN by [AWS CloudFront](https://aws.amazon.com/cloudfront/) - Global content delivery
+- Styled with [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
+- UI Components by [DaisyUI](https://daisyui.com/) - Tailwind CSS component library
+- Templates by [EJS](https://ejs.co/) - Embedded JavaScript templating
 
 ---
 

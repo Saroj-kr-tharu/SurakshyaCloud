@@ -1,18 +1,18 @@
 <div class="min-h-[73vh] w-full flex items-center justify-center px-4 py-8">
     <div class="w-full max-w-md">
-        <div class="bg-base-200 border border-base-300 rounded-2xl shadow-xl p-6 sm:p-8">
-            <!-- Header -->
+        <div class="bg-white border-2 border-gray-200 rounded-2xl shadow-2xl p-6 sm:p-8">
             <div class="text-center mb-6">
-                <h1 class="text-2xl sm:text-3xl font-bold text-base-content">Welcome Back</h1>
-                <p class="text-sm text-base-content/70 mt-2">Please login to your account</p>
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Welcome Back</h1>
+                <p class="text-sm text-gray-600 font-semibold">Please login to your account</p>
             </div>
 
-            <!-- Login Form -->
             <form id="loginForm" method="POST" action="/login" class="space-y-4">
+
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <% fieldList.forEach(field=> { %>
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text flex items-center gap-2">
+                    <div class="w-full">
+                        <label class="block mb-2">
+                            <span class="flex items-center gap-2 text-gray-700">
                                 <i class="<%= field.icon %>"></i>
                                 <span>
                                     <%= field.title %>
@@ -20,69 +20,95 @@
                             </span>
                         </label>
                         <input type="<%= field.type %>" name="<%= field.name || field.title.toLowerCase() %>"
-                            class="input input-bordered w-full focus:input-primary transition-all"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                             placeholder="Enter <%= field.title.toLowerCase() %>" required />
                     </div>
                     <% }) %>
 
-                        <!-- Remember Me & Forgot Password -->
                         <div class="flex items-center justify-between text-sm">
-
-                            <a href="/forgot-password" class="link link-primary">Forgot password?</a>
+                            <a href="/forgot-password" class="text-blue-600 hover:text-blue-700 hover:underline">
+                                Forgot password?
+                            </a>
                         </div>
 
-                        <!-- Submit Button -->
-                        <button type="submit" class="btn btn-primary w-full">
+                        <button type="submit" id="loginBtn"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all flex items-center justify-center gap-2">
                             <span>Login</span>
                             <i class="fas fa-arrow-right"></i>
                         </button>
 
-                        <!-- Sign Up Link -->
                         <div class="text-center text-sm">
-                            <span class="text-base-content/70">Don't have an account?</span>
-                            <a href="/register" class="link link-primary ml-1">Sign up</a>
+                            <span class="text-gray-600">Don't have an account?</span>
+                            <a href="/register" class="text-blue-600 hover:text-blue-700 hover:underline ml-1">Sign
+                                up</a>
                         </div>
             </form>
         </div>
     </div>
 </div>
 
+
 <script>
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const formData = new FormData(e.target);
+        const form = e.target;
+        const btn = document.getElementById('loginBtn');
+        const formData = new FormData(form);
         const data = Object.fromEntries(formData);
-        alert('data => ', data);
-        console.log('data => ', data)
+
+        // Validation
+        if (!data.email || !data.password) {
+            toaster.error('Please fill in all fields', 'Validation Error');
+            return;
+        }
+
+        // Show loading
+        btn.disabled = true;
+        btn.innerHTML = '<span class="inline-block animate-spin mr-2">⏳</span> Logging in...';
+
         try {
-            const response = await fetch('/login', {
+            const response = await fetch('<%= baseUrl %>/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify(data)
             });
 
-            // Check if response is JSON before parsing
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                const result = await response.json();
+            const result = await response.json();
 
-                if (response.ok) {
-                    window.location.href = result.redirect || '/dashboard';
-                } else {
-                    alert(result.message || 'Login failed');
-                }
+            if (response.ok) {
+                // Success
+                toaster.success('Redirecting to dashboard...', 'Login Successful');
+                const data = result?.data;
+
+                document.cookie = `accessToken=${data.jwt}; path=/; max-age=${60 * 15}`; // 60 sec * 15 -> 15min 
+
+                console.log('result => ', result)
+                btn.disabled = false;
+                btn.innerHTML = '<span>Login</span><i class="fas fa-arrow-right ml-2"></i>';
+                setTimeout(() => {
+                    window.location.href = result.redirectUrl || '/dashboard';
+                }, 1000);
             } else {
-                // Handle non-JSON response (likely HTML error page)
-                const text = await response.text();
-                console.error('Server returned non-JSON response:', text);
-                alert('Server error. Please check console for details.');
+                // Error
+                toaster.error('Login failed. Please try again.', 'Authentication Failed');
+                // form reset 
+                form.reset();
+                // Reset button
+                btn.disabled = false;
+                btn.innerHTML = '<span>Login</span><i class="fas fa-arrow-right ml-2"></i>';
             }
+
         } catch (error) {
-            console.error('Error:', error);
-            alert('An error occurred. Please try again.');
+
+            toaster.error('Please check your connection and try again.', 'Network Error');
+
+            // Reset button
+            btn.disabled = false;
+            btn.innerHTML = '<span>Login</span><i class="fas fa-arrow-right ml-2"></i>';
         }
     });
 </script>

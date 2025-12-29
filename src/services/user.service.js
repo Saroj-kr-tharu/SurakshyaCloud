@@ -44,7 +44,9 @@ class userService extends curdService{
             
             
             // refresh token 
-            const refreshToken = await jwt_helper.createRefreshToken({email, id: infoUser?._id,});
+            const refreshToken = await jwt_helper.createRefreshToken(
+                {email, id: infoUser?._id,  storageUsed: infoUser?.storageUsed,
+                storageMax:infoUser?.storageMax,});
 
           
  
@@ -65,7 +67,8 @@ class userService extends curdService{
                 role: infoUser?.role,
                 username: infoUser?.username,
                 jwt: token,
-                storageUsed: infoUser?.storageUsed
+                storageUsed: infoUser?.storageUsed,
+                storageMax:infoUser?.storageMax,
             }
             
             return response;
@@ -89,13 +92,14 @@ class userService extends curdService{
                
             
             const infoUser = await userRepo.getByEmail(user.data.email);
-
            
             const response = {
                 email: user.data.email,
                 role: infoUser?.role,
                 username: infoUser?.username,
                 jwt: data,
+                storageUsed:infoUser?.storageUsed,
+                storageMax: infoUser?.storageMax,
             }
             
             return response;

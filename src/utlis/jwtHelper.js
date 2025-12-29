@@ -4,7 +4,7 @@ const { PRIVATE_JWT, PRIVATEJWTRefersh } = require("../config/serverConfig");
 
 class JWT {
 
-  async createToken(data, time= '60m') {
+  async createToken(data, time= '20m') {
     try {
 
         // console.log('data => ', data, ' time => ', time, " secrect => ", PRIVATE_JWT)

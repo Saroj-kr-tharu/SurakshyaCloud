@@ -61,9 +61,10 @@ class AuthController {
             
             
             const token = req?.headers['x-access-token'];
+            // console.log('token => ', token)
             const response = await userService.verifyToken(token);
 
-            console.log('response = > ', response)
+            // console.log('response = > ', response)
             
             return res.status(SucessCode.OK).json({
                 message: "Successfully to veify Token ",
@@ -115,7 +116,7 @@ class AuthController {
             
             
             const oldToken = req.cookies.refreshToken;
-
+            console.log('olde Token => ', req.cookies)
             if(!oldToken){
                     return res.status(SucessCode.OK).json({
                     message: "Already Logout",
