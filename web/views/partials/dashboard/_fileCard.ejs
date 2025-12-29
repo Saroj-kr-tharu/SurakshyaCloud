@@ -30,7 +30,7 @@
             badgeText='Audio' ; 
 } %>
 
-<div class="item-card file" data-name="<%= file.originalName %>" data-type="<%= fileType %>" data-size="<%= (file.size / 1024).toFixed(2) %>" data-date="<%= file.updatedAt ? new Date(file.updatedAt).toISOString().split('T')[0] : '' %>" data-file-id="<%= file._id %>" data-is-image="<%= fileType === 'image' ? 'true' : 'false' %>" onclick="Dashboard.handleFileClick(this)">
+<div class="item-card file" data-name="<%= file.originalName %>" data-type="<%= fileType %>" data-size="<%= (file.size / 1024).toFixed(2) %>" data-date="<%= file.updatedAt ? new Date(file.updatedAt).toISOString().split('T')[0] : '' %>" data-file-id="<%= file._id %>" data-="<%= fileType === 'image' ? 'true' : 'false' %>" onclick="Dashboard.handleFileClick(this)">
 
   <div class="card bg-base-100 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 cursor-pointer border border-base-content/10 group">
     <div class="card-body p-5">

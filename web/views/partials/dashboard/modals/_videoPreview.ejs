@@ -1,0 +1,30 @@
+<div id="videoPreviewModal" class="fixed inset-0 z-50 hidden p-4">
+  <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="Dashboard.closeVideo()"></div>
+
+
+  <div class="relative z-10 max-w-5xl mx-auto">
+    <div class="flex justify-between mb-4">
+      <h3 id="videoFileName" class="text-white font-bold"></h3>
+      <div class="flex gap-3">
+        <button id="downloadBtn" onclick="Dashboard.downloadVideo()" class="btn btn-primary btn-sm gap-2 shadow-lg hover:shadow-xl transition-all">
+          <i class="fas fa-download"></i>
+          Download
+        </button>
+        <button onclick="Dashboard.closeVideo()" class="btn btn-circle btn-sm btn-ghost text-white hover:bg-white/10">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+
+
+      </div>
+    </div>
+
+    <div class="bg-black rounded-xl p-4">
+      <div id="videoLoader" class="flex flex-col items-center gap-4">
+        <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-white text-lg">Loading Video...</p>
+      </div>
+
+      <video id="previewVideo" controls class="hidden w-full rounded-xl"></video>
+    </div>
+  </div>
+</div>
