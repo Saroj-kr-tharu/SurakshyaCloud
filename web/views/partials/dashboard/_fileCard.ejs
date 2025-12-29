@@ -1,0 +1,79 @@
+<% 
+    const fileExt=file.originalName.split('.').pop().toLowerCase(); 
+    const fileType=file.mimeType.split('/')[0]; 
+    let iconClass='fa-file' ;
+    let colorClass='gray-500';
+    let badgeClass='badge-neutral' ; 
+    let badgeText=fileExt.toUpperCase();
+
+    if (fileType==='image' ) { 
+        iconClass='fa-file-image' ; 
+        colorClass='green-500' ;
+        badgeClass='badge-success' ;
+        badgeText=fileExt.toUpperCase() + ' Image' ; 
+
+    } else if 
+        (file.mimeType==='application/pdf' ){ 
+            iconClass='fa-file-pdf' ;
+            colorClass='red-500' ;
+            badgeClass='badge-error' ;
+            badgeText='PDF Document' ; 
+    } else if (fileType==='video' ) {
+            iconClass='fa-file-video' ; 
+            colorClass='purple-500' ;
+            badgeClass='badge-secondary' ;
+            badgeText='Video' ; 
+        } else if (fileType==='audio' ) { 
+            iconClass='fa-file-audio' ;
+            colorClass='yellow-500' ;
+            badgeClass='badge-warning' ;
+            badgeText='Audio' ; 
+} %>
+
+<div class="item-card file" data-name="<%= file.originalName %>" data-type="<%= fileType %>" data-size="<%= (file.size / 1024).toFixed(2) %>" data-date="<%= file.updatedAt ? new Date(file.updatedAt).toISOString().split('T')[0] : '' %>" data-file-id="<%= file._id %>" data-is-image="<%= fileType === 'image' ? 'true' : 'false' %>" onclick="Dashboard.handleFileClick(this)">
+
+  <div class="card bg-base-100 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 cursor-pointer border border-base-content/10 group">
+    <div class="card-body p-5">
+      <div class="flex items-start justify-around mb-0">
+        <div class="p-3 rounded-xl bg-<%= colorClass %>/10 group-hover:bg-<%= colorClass %>/20 transition-all">
+          <i class="fas <%= iconClass %> text-5xl text-<%= colorClass %> group-hover:scale-110 transition-transform card-icon"></i>
+        </div>
+        <div class="dropdown dropdown-end" onclick="event.stopPropagation()">
+          <label tabindex="0" class="btn btn-ghost btn-sm btn-circle hover:bg-base-200">
+            <i class="fas fa-ellipsis-v"></i>
+          </label>
+          <ul tabindex="0" class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 border border-base-content/10">
+            <% itemActions.filter(a=> a.targets.includes("file")).forEach(action => { %>
+            <li onclick="Dashboard.handleFileActionsClick(this)">
+              <a class="hover:bg-<%= action.color %>/10" data-name="<%= file.originalName %>" data-action="<%= action.action %>" data-id="<%= file._id %>" data-type="file">
+                <i class="fas <%= action.icon %> mr-2 text-<%= action.color %>"></i>
+                <%= action.label %>
+              </a>
+            </li>
+            <% }) %>
+          </ul>
+        </div>
+      </div>
+
+      <div class="ml-4">
+        <h3 class="card-title text-base font-bold mb-2 group-hover:text-<%= colorClass %> transition-colors truncate">
+          <%= file.originalName %>
+        </h3>
+        <div class="text-sm space-y-1 card-meta">
+          <div class="badge <%= badgeClass %> badge-sm">
+            <%= badgeText %>
+          </div>
+          <p class="text-base-content/70">
+            Size: <%= file.size < 1024 * 1024 ? (file.size / 1024).toFixed(2) + ' KB' : (file.size /
+                                (1024 * 1024)).toFixed(2) + ' MB' %>
+          </p>
+          <p class="text-base-content/50 text-xs">
+            Modified: <%= file.updatedAt ? new Date(file.updatedAt).toLocaleDateString('en-US', {
+                                year: 'numeric' , month: 'short' , day: '2-digit' }) : 'N/A' %>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

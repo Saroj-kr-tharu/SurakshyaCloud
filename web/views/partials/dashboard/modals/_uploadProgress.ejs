@@ -1,0 +1,39 @@
+<!-- Google Drive Style Upload Progress Widget (Floating) -->
+<div id="uploadProgressWidget" class="fixed bottom-4 right-4 z-[9999] hidden">
+  <div class="bg-base-100 rounded-lg shadow-2xl border border-base-content/10 overflow-hidden w-80 sm:w-96">
+    <!-- Widget Header -->
+    <div class="upload-widget-header flex items-center justify-between px-4 py-3 bg-base-200 cursor-pointer" onclick="Dashboard.toggleUploadWidget()">
+      <div class="flex items-center gap-2">
+        <div id="uploadHeaderIcon" class="w-5 h-5 flex items-center justify-center">
+          <div class="upload-spinner-small"></div>
+        </div>
+        <span id="uploadWidgetTitle" class="font-semibold text-sm">Uploading 0 items</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <button id="toggleWidgetBtn" class="btn btn-ghost btn-xs btn-circle" onclick="event.stopPropagation(); Dashboard.toggleUploadWidget()">
+          <i class="fas fa-chevron-up" id="toggleIcon"></i>
+        </button>
+        <button onclick="event.stopPropagation(); Dashboard.cancelAllUploads()" class="btn btn-ghost btn-xs btn-circle" title="Cancel all">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Overall Progress Bar -->
+    <div id="overallProgressBar" class="h-1 bg-base-300">
+      <div id="overallProgressFill" class="h-full bg-primary transition-all duration-300" style="width: 0%">
+      </div>
+    </div>
+
+    <!-- Upload Status Line -->
+    <div id="uploadStatusLine" class="flex items-center justify-between px-4 py-2 border-b border-base-content/10 bg-base-100">
+      <span id="uploadStatusMessage" class="text-sm text-base-content/70">Preparing upload...</span>
+      <span id="uploadProgressPercent" class="text-sm font-semibold text-primary">0%</span>
+    </div>
+
+    <!-- File List -->
+    <div id="uploadFileList" class="upload-file-list max-h-64 overflow-y-auto">
+      <!-- Files will be inserted here -->
+    </div>
+  </div>
+</div>

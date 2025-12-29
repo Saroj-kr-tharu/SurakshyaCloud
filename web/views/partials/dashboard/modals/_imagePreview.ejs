@@ -1,0 +1,43 @@
+<!-- Image Preview Modal -->
+<div id="imagePreviewModal" class="fixed border-2 border-black inset-0 z-50 hidden items-center justify-center p-4">
+    <!-- Backdrop with blur -->
+    <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="Dashboard.closeImagePreview()"></div>
+
+    <!-- Modal Content -->
+    <div class="relative z-10 w-full max-w-6xl max-h-[90vh] flex flex-col">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4 px-4">
+            <h3 id="previewFileName" class="text-white text-xl font-bold truncate max-w-md"></h3>
+            <div class="flex gap-3">
+                <button id="downloadBtn" onclick="Dashboard.downloadImage()"
+                    class="btn btn-primary btn-sm gap-2 shadow-lg hover:shadow-xl transition-all">
+                    <i class="fas fa-download"></i>
+                    Download
+                </button>
+                <button onclick="Dashboard.closeImagePreview()"
+                    class="btn btn-circle btn-sm btn-ghost text-white hover:bg-white/10">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Image Container with Loading State -->
+        <div class="bg-base-100/10 rounded-2xl p-4 flex items-center justify-center overflow-hidden min-h-[400px]">
+            <!-- Loading Spinner -->
+            <div id="imageLoader" class="flex flex-col items-center gap-4">
+                <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-white text-lg">Loading image...</p>
+            </div>
+
+            <!-- Image -->
+            <img id="previewImage" src="" alt="Preview"
+                class="hidden max-w-full max-h-[calc(90vh-120px)] object-contain rounded-lg shadow-2xl">
+
+            <!-- Error State -->
+            <div id="imageError" class="hidden flex-col items-center gap-4 text-white">
+                <i class="fas fa-exclamation-triangle text-6xl text-error"></i>
+                <p class="text-lg">Failed to load image</p>
+            </div>
+        </div>
+    </div>
+</div>

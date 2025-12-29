@@ -1,0 +1,21 @@
+<!-- Stats Section with 3D Hover Effects -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+  <% stats.forEach(stat=> { %>
+  <div class="stats shadow-xl bg-base-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 cursor-pointer border border-<%= stat.border %>/20">
+    <div class="stat">
+      <div class="stat-figure text-<%= stat.color %>">
+        <i class="fas <%= stat.icon %> text-4xl"></i>
+      </div>
+      <div class="stat-title text-base sm:text-xl font-bold">
+        <%= stat.title %>
+      </div>
+      <div class="stat-value text-<%= stat.color %> text-3xl">
+        <%= stat.value %>
+      </div>
+      <div class="stat-desc">
+        <%= stat.desc %>
+      </div>
+    </div>
+  </div>
+  <% }) %>
+</div>

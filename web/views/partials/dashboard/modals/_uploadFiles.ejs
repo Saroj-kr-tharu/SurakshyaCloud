@@ -1,0 +1,58 @@
+<!-- Upload Files Modal -->
+<div id="uploadFilesModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+  <!-- Backdrop with blur -->
+  <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="Dashboard.closeUploadFilesModal()"></div>
+
+  <!-- Modal Content -->
+  <div class="relative z-10 w-full max-w-lg bg-base-100 rounded-2xl shadow-2xl overflow-hidden">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-4 border-b border-base-content/10 bg-base-200">
+      <div class="flex items-center gap-3">
+        <div class="p-2 rounded-xl bg-primary/10">
+          <i class="fas fa-upload text-2xl text-primary"></i>
+        </div>
+        <h3 class="text-xl font-bold">Upload Files</h3>
+      </div>
+      <button onclick="Dashboard.closeUploadFilesModal()" class="btn btn-circle btn-sm btn-ghost hover:bg-base-300">
+        <i class="fas fa-times text-lg"></i>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="p-6">
+      <!-- Drop Zone -->
+      <div id="dropZone" class="border-2 border-dashed border-primary/30 rounded-xl p-8 text-center transition-all duration-300 hover:border-primary hover:bg-primary/5 cursor-pointer" onclick="document.getElementById('fileInput').click()">
+        <i class="fas fa-cloud-upload-alt text-6xl text-primary/50 mb-4"></i>
+        <p class="text-lg font-semibold mb-2">Drag & Drop files here</p>
+        <p class="text-base-content/60 mb-4">or click to browse</p>
+        <button type="button" class="btn btn-primary btn-sm gap-2">
+          <i class="fas fa-folder-open"></i>
+          Browse Files
+        </button>
+        <input type="file" id="fileInput" multiple class="hidden" onchange="Dashboard.handleFileSelect(event)">
+      </div>
+
+      <!-- Selected Files List -->
+      <div id="selectedFilesList" class="mt-4 space-y-2 max-h-48 overflow-y-auto hidden">
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-semibold text-sm">Selected Files</span>
+          <button onclick="Dashboard.clearSelectedFiles()" class="btn btn-ghost btn-xs text-error">
+            <i class="fas fa-trash mr-1"></i> Clear All
+          </button>
+        </div>
+        <div id="fileListContainer"></div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex justify-end gap-3 p-4 border-t border-base-content/10 bg-base-200">
+      <button onclick="Dashboard.closeUploadFilesModal()" class="btn btn-outline btn-sm" id="cancelUploadBtn">
+        Cancel
+      </button>
+      <button onclick="Dashboard.startUpload()" class="btn btn-primary btn-sm gap-2" id="startUploadBtn" disabled>
+        <i class="fas fa-upload"></i>
+        Upload Files
+      </button>
+    </div>
+  </div>
+</div>

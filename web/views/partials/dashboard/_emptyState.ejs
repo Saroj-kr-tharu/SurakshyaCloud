@@ -1,0 +1,12 @@
+<%# Empty State Partial - Expects: files, folders %>
+<div id="emptyState" class="<%= (!files || files.length === 0) && (!folders || folders.length === 0) ? '' : 'hidden' %> col-span-full flex flex-col items-center justify-center py-20">
+  <div class="text-center">
+    <i class="fas fa-folder-open text-9xl opacity-20 mb-6"></i>
+    <h3 class="text-2xl font-bold mb-3">No files or folders found</h3>
+    <p class="text-base-content/60 mb-8 max-w-md">Try adjusting your search or upload files to get started</p>
+    <button class="btn btn-primary gap-2" onclick="Dashboard.handleActionButton('uploadFiles')">
+      <i class="fas fa-upload"></i>
+      Upload Files
+    </button>
+  </div>
+</div>

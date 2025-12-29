@@ -1,0 +1,45 @@
+<!-- Rename Items Modal -->
+<div id="renameItemsModal" class=" fixed w-full   border-2  inset-0 z-90 hidden items-center justify-center p-4">
+  <!-- Backdrop with blur -->
+  <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="Dashboard.closeRenameItemsModal()"></div>
+
+  <!-- Modal Content -->
+  <div class="relative z-10 w-full max-w-md bg-base-100 rounded-2xl shadow-2xl overflow-hidden mx-auto my-auto">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-4 border-b border-base-content/10 bg-base-200">
+      <div class="flex items-center gap-3">
+        <div class="p-2 rounded-xl bg-warning/10">
+          <i class="fas fa-pen text-2xl text-warning"></i>
+        </div>
+        <h3 class="text-xl font-bold">Rename Item</h3>
+      </div>
+      <button onclick="Dashboard.closeRenameItemsModal()" class="btn btn-circle btn-sm btn-ghost hover:bg-base-300">
+        <i class="fas fa-times text-lg"></i>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="p-6">
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text font-semibold">New Name</span>
+        </label>
+        <input type="text" id="renameItemInput" placeholder="Enter new name..." class="input input-bordered w-full focus:input-primary" maxlength="255" onkeypress="if(event.key === 'Enter') Dashboard.renameItem()">
+        <label class="label">
+          <span class="label-text-alt text-base-content/60">Use letters, numbers, and underscores</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex justify-end gap-3 p-4 border-t border-base-content/10 bg-base-200">
+      <button onclick="Dashboard.closeRenameItemsModal()" class="btn btn-outline btn-sm">
+        Cancel
+      </button>
+      <button onclick="Dashboard.renameItem()" class="btn btn-warning btn-sm gap-2" id="renameItemBtn">
+        <i class="fas fa-pen"></i>
+        Rename
+      </button>
+    </div>
+  </div>
+</div>
